@@ -123,3 +123,37 @@ radarchart(radar_df,
 legend("topright", legend = rownames(radar_vals),
        col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.8)
 
+
+png("outputs/V9_radar_top5.png", width = 900, height = 700)
+radarchart(radar_df, pcol = couleurs, pfcol = paste0(couleurs, "44"),
+           plwd = 2, cglcol = "grey", axislabcol = "grey",
+           vlabels = c("Prix", "Surface", "Qualité", "Garage", "Récence"))
+legend("topright", legend = rownames(radar_vals),
+       col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.8)
+dev.off()
+
+
+
+# V10 : composition typologique des 15 principaux quartiers
+top15 <- train %>%
+  count(Neighborhood, sort = TRUE) %>%
+  head(15) %>%
+  pull(Neighborhood)
+
+comp_df <- train %>%
+  filter(Neighborhood %in% top15) %>%
+  count(Neighborhood, BldgType) %>%
+  group_by(Neighborhood) %>%
+  mutate(pct = n / sum(n)) %>%
+  ungroup()
+
+v10 <- plot_ly(comp_df, x = ~Neighborhood, y = ~pct, color = ~BldgType,
+               type = "bar",
+               colors = c("#2d5fa8", "#66c2a5", "#fc8d62", "#e78ac3", "#a6d854")) %>%
+  layout(barmode = "stack",
+         title = "OldTown est le quartier le plus diversifié en types de biens",
+         yaxis = list(title = "Proportion", tickformat = ".0%"),
+         xaxis = list(title = ""),
+         legend = list(orientation = "h", y = -0.2))
+
+v10
