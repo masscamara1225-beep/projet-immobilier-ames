@@ -3,8 +3,9 @@ library(ggplot2)
 library(dplyr)
 library(scales)
 library(plotly)
+library(here)
 
-train <- read.csv("data/train_clean.csv", stringsAsFactors = FALSE)
+train <- read.csv(here("data", "train_clean.csv"), stringsAsFactors = FALSE)
 train$OverallQual <- factor(train$OverallQual, levels = 1:10, ordered = TRUE)
 
 ui <- navbarPage("Marché Immobilier d'Ames · 2006-2010",
