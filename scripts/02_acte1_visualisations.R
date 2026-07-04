@@ -24,6 +24,8 @@ v3 <- ggplot(train, aes(x = SalePrice, fill = BldgType)) +
 v3
 ggsave("outputs/V3_density_bldgtype.png", v3, width = 10, height = 6, dpi = 300)
 
+
+
 # V5 : lollipop chart du prix median par quartier
 quartiers <- train %>%
   group_by(Neighborhood) %>%
@@ -46,6 +48,8 @@ v5
 ggsave("outputs/V5_lollipop_quartiers.png", v5, width = 10, height = 8, dpi = 300)
 
 
+
+
 # V6 : violin plot des prix par niveau de qualite
 
 train$OverallQual <- factor(train$OverallQual, levels = 1:10, ordered = TRUE)
@@ -65,4 +69,57 @@ v6 <- ggplot(train, aes(x = OverallQual, y = SalePrice, fill = OverallQual)) +
 
 v6
 ggsave("outputs/V6_violin_qualite.png", v6, width = 10, height = 6, dpi = 300)
+
+
+
+
+# V4 : donut chart de la composition du marche par type de bien
+library(plotly)
+
+bldg_df <- train %>%
+  count(BldgType) %>%
+  arrange(desc(n))
+
+v4 <- plot_ly(bldg_df, labels = ~BldgType, values = ~n,
+              type = "pie", hole = 0.55,
+              textinfo = "label+percent",
+              marker = list(colors = c("#2d5fa8", "#66c2a5", "#fc8d62", "#e78ac3", "#a6d854"))) %>%
+  layout(title = "8 maisons sur 10 vendues à Ames sont des maisons individuelles")
+
+v4
+
+
+
+# V9 : radar chart du profil des 5 quartiers les plus chers
+library(fmsb)
+
+top5 <- train %>%
+  group_by(Neighborhood) %>%
+  summarise(
+    prix = median(SalePrice),
+    surface = median(GrLivArea),
+    qualite = median(as.numeric(OverallQual)),
+    garage = median(GarageCars),
+    recence = median(YearBuilt)
+  ) %>%
+  arrange(desc(prix)) %>%
+  head(5)
+
+# normalisation : toutes les valeurs ramenees entre 0 et 1
+normalise <- function(x) (x - min(x)) / (max(x) - min(x))
+radar_vals <- as.data.frame(lapply(top5[, -1], normalise))
+rownames(radar_vals) <- top5$Neighborhood
+
+# fmsb exige 2 lignes en plus : le max (1) et le min (0) de chaque axe
+radar_df <- rbind(rep(1, 5), rep(0, 5), radar_vals)
+
+couleurs <- c("#c8392b", "#2d5fa8", "#d4890a", "#2d7a55", "#1e7a7a")
+
+radarchart(radar_df,
+           pcol = couleurs,
+           pfcol = paste0(couleurs, "44"),
+           plwd = 2, cglcol = "grey", axislabcol = "grey",
+           vlabels = c("Prix", "Surface", "Qualité", "Garage", "Récence"))
+legend("topright", legend = rownames(radar_vals),
+       col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.8)
 
