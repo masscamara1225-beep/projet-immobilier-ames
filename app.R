@@ -269,14 +269,102 @@ ui <- dashboardPage(
       ),
 
       tabItem(tabName = "acte3",
-              h3("Acte 3 · L'environnement crée-t-il une prime ou une décote ?"),
-              p("En construction — V11 à V14")
+              page_header(
+                title = "L'environnement crée-t-il une prime ou une décote ?",
+                meta  = "Acte 3 · Condition1 · Prime parc +41 % · Décote route −28 %"
+              ),
+              section_subtitle(
+                "Vivre près d'un parc rapporte 68 000 $ de plus que vivre près d'une
+     route artérielle. Cet acte quantifie l'impact de l'environnement
+     immédiat sur le prix de vente."
+              ),
+              tabsetPanel(
+                id = "acte3_subtabs",
+                type = "tabs",
+                tabPanel("Impact sur le prix",
+                         br(),
+                         tags$div(class = "empty-state", "V11 Barres Condition1 · V12 Scatter coloré — en construction (Axelle)")
+                ),
+                tabPanel("Rareté des espaces verts",
+                         br(),
+                         tags$div(class = "empty-state", "V13 Nightingale Rose · V14 Waffle Chart — en construction (Axelle)")
+                )
+              )
       ),
 
       tabItem(tabName = "acte4",
-              h3("Acte 4 · Quels facteurs influencent vraiment le prix ?"),
-              p("En construction — V15 à V21")
+              page_header(
+                title = "Quels facteurs influencent vraiment le prix ?",
+                meta  = "Acte 4 · Corrélations · 3D · Réseau · Random Forest"
+              ),
+              section_subtitle(
+                "OverallQual (r = 0.79), GrLivArea (r = 0.71) et GarageCars (r = 0.64) :
+     les trois piliers du prix, confirmés par le Random Forest."
+              ),
+              tabsetPanel(
+                id = "acte4_subtabs",
+                type = "tabs",
+                tabPanel("Corrélations",
+                         br(),
+                         tags$div(class = "empty-state", "V15 Heatmap · V16 Scatter + lm() · V20 Réseau — en construction (Axelle)")
+                ),
+                tabPanel("Vue 3D",
+                         br(),
+                         tags$div(class = "empty-state", "V17 Bubble Chart · V18 Scatter 3D ★ — en construction (Axelle)")
+                ),
+                tabPanel("Profils premium",
+                         br(),
+                         tags$div(class = "empty-state", "V19 Parallel Coordinates · V21 Importance RF — en construction (Axelle)")
+                )
+              )
       ),
+      
+      tabItem(tabName = "acte5",
+              page_header(
+                title = "Comment les prix évoluent-ils dans le temps ?",
+                meta  = "Acte 5 · Crise 2008 · Ères de construction · Saisonnalité"
+              ),
+              section_subtitle(
+                "167 000 $ en 2007, 155 000 $ en 2010 : −7,2 % en 36 mois. La crise a
+     réduit les prix mais n'a pas changé les règles du marché."
+              ),
+              tabsetPanel(
+                id = "acte5_subtabs",
+                type = "tabs",
+                tabPanel("Évolution 2006-2010",
+                         br(),
+                         tags$div(class = "empty-state", "V22 Line Graph interactif — en construction (Axelle)")
+                ),
+                tabPanel("Ères et saisonnalité",
+                         br(),
+                         tags$div(class = "empty-state", "V23 Ridgeline · V24 Heatmap saisonnalité — en construction (Axelle)")
+                )
+              )
+      ),
+      
+      tabItem(tabName = "ml",
+              page_header(
+                title = "Modélisation prédictive",
+                meta  = "Régression linéaire · Random Forest · k-NN · Soumission Kaggle"
+              ),
+              section_subtitle(
+                "Trois modèles pour valider les conclusions de l'enquête et prédire
+     le prix sur les 1 459 maisons du fichier test Kaggle."
+              ),
+              tags$div(class = "empty-state", "Coefficient plot · Importance RF · k-NN · Score Kaggle — en construction (Axelle)")
+      ),
+      
+      tabItem(tabName = "reco",
+              page_header(
+                title = "5 recommandations stratégiques",
+                meta  = "Acheteur · Vendeur · Investisseur · Promoteur · Urbaniste"
+              ),
+              section_subtitle(
+                "Cinq recommandations différenciées par profil d'acteur, ancrées
+     dans les résultats des cinq actes de l'enquête."
+              ),
+              tags$div(class = "empty-state", "Tableau des recommandations R1 à R5 — en construction")
+      ), 
 
       tabItem(tabName = "acte5",
               h3("Acte 5 · Comment les prix évoluent-ils dans le temps ?"),
