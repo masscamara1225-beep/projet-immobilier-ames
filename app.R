@@ -1,129 +1,381 @@
 ui <- dashboardPage(
-  skin = "blue",
-  dashboardHeader(title = "Marché Immobilier d'Ames"),
-  
+  skin = "black",
+  dashboardHeader(
+    title = tags$div(
+      class = "brand",
+      tags$span(class = "brand-dot"),
+      tags$span(class = "brand-text",
+                tags$span(class = "brand-main", "Immobilier Ames"),
+                tags$span(class = "brand-sub", "Enquête sur le prix des maisons"))
+    ),
+    titleWidth = 280
+  ),
+
   dashboardSidebar(
+    width = 280,
     sidebarMenu(
+      id = "main_tabs",
+      
+      tags$div(class = "side-section", "L'enquête"),
       menuItem("Accueil", tabName = "accueil", icon = icon("house")),
       menuItem("Acte 1 · Marché", tabName = "acte1", icon = icon("chart-column")),
       menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map")),
       menuItem("Acte 3 · Environnement", tabName = "acte3", icon = icon("tree")),
       menuItem("Acte 4 · Facteurs", tabName = "acte4", icon = icon("magnifying-glass-chart")),
       menuItem("Acte 5 · Temporel", tabName = "acte5", icon = icon("clock")),
+      
+      tags$div(class = "side-section", "Analyse avancée"),
       menuItem("Machine Learning", tabName = "ml", icon = icon("robot")),
-      menuItem("Recommandations", tabName = "reco", icon = icon("lightbulb"))
+      menuItem("Recommandations", tabName = "reco", icon = icon("lightbulb")),
+      
+      selectInput("quartiers_filtre", "Filtrer par quartier :",
+                  choices = c("Tous", sort(unique(train$Neighborhood))),
+                  selected = "Tous")
     ),
-    selectInput("quartiers_filtre", "Filtrer par quartier :",
-                choices = c("Tous", sort(unique(train$Neighborhood))),
-                selected = "Tous")
+    
+    tags$div(class = "side-footer",
+             tags$div("CAMARA Massaram · LOGBO Axelle"),
+             tags$div("Visualisation de Données · DATA SCIENCE.IA UFRMI · 2025-2026")
+    )
   ),
-  
+
   dashboardBody(
-    tags$head(tags$style(HTML("
-      .skin-blue .main-sidebar { background-color: #1e3a5f; }
-      .skin-blue .main-header .navbar { background-color: #2d5fa8; }
-      .skin-blue .main-header .logo { background-color: #24487e; }
-      .skin-blue .sidebar-menu > li.active > a { border-left-color: #c8392b; }
-    "))),
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css",
+                href = paste0("style.css?v=", as.numeric(Sys.time())))
+    ),
     tabItems(
       tabItem(tabName = "accueil",
-              h2("L'enquête"),
-              fluidRow(
-                valueBox("163 000 $", "Prix médian global", icon = icon("house"), color = "blue", width = 3),
-                valueBox("NridgHt", "Quartier le + cher · 315 000 $", icon = icon("star"), color = "green", width = 3),
-                valueBox("6.1 / 10", "Qualité moyenne", icon = icon("medal"), color = "yellow", width = 3),
-                valueBox("×21", "Amplitude · de 35k$ à 755k$", icon = icon("arrows-up-down"), color = "red", width = 3)
+              page_header(
+                title = "Une maison peut en valoir 21 fois une autre",
+                meta  = "Ames, Iowa · 1 460 transactions · 2006-2010 · Kaggle House Prices"
+              ),
+              section_subtitle(
+                "En 2007, une maison à Ames valait 755 000 $. La même année, une autre
+     valait 35 000 $. Même ville, 5 kilomètres d'écart. Notre enquête
+     parcourt 1 460 transactions et 80 variables pour répondre à une seule
+     question : qu'est-ce qui fait le prix d'une maison ?"
               ),
               fluidRow(
-                box(width = 12, title = "Le point de départ", status = "primary",
-                    p("En 2007, une maison à Ames valait 755 000 $. La même année, une autre
-               valait 35 000 $. Même ville, 5 kilomètres d'écart."),
-                    p(strong("1 460 transactions, 80 variables, une seule question :
-               qu'est-ce qui fait le prix d'une maison ?"))
+                column(3, kpi_card("Prix médian", "163 000 $",
+                                   hint = "Référence marché", accent = COULEURS$bleu)),
+                column(3, kpi_card("Quartier le + cher", "NridgHt",
+                                   hint = "315 000 $ médian", accent = COULEURS$vert)),
+                column(3, kpi_card("Qualité moyenne", "6.1 / 10",
+                                   hint = "OverallQual", accent = COULEURS$orange)),
+                column(3, kpi_card("Amplitude", "×21",
+                                   hint = "de 35 000 $ à 755 000 $", accent = COULEURS$rouge))
+              ),
+              fluidRow(
+                column(12,
+                       card(title = "L'enquête en 5 actes",
+                            tags$ul(class = "obj-list",
+                                    tags$li(strong("Acte 1 · Quoi ?"), " — Ce qui se vend : types de biens, quartiers, qualité"),
+                                    tags$li(strong("Acte 2 · Où ?"), " — La géographie des prix : NridgHt vs BrDale, écart ×3.9"),
+                                    tags$li(strong("Acte 3 · Environnement"), " — Prime parc +41%, décote route -28%"),
+                                    tags$li(strong("Acte 4 · Pourquoi ?"), " — Les vrais facteurs : qualité, surface, garage"),
+                                    tags$li(strong("Acte 5 · Quand ?"), " — La crise de 2008 et la saisonnalité des ventes")
+                            )
+                       )
                 )
               ),
               fluidRow(
-                box(width = 12, title = "L'enquête en 5 actes", status = "primary",
-                    tags$ul(
-                      tags$li(strong("Acte 1 · Quoi ?"), " — Ce qui se vend : types de biens, quartiers, qualité"),
-                      tags$li(strong("Acte 2 · Où ?"), " — La géographie des prix : NridgHt vs BrDale, écart ×3.9"),
-                      tags$li(strong("Acte 3 · Environnement"), " — Prime parc +41%, décote route -28%"),
-                      tags$li(strong("Acte 4 · Pourquoi ?"), " — Les vrais facteurs : qualité, surface, garage"),
-                      tags$li(strong("Acte 5 · Quand ?"), " — La crise de 2008 et la saisonnalité des ventes")
-                    )
+                column(12, tags$h3(class = "section-title", "Parcours guidé"))
+              ),
+              fluidRow(
+                column(4,
+                       actionLink("nav_acte1", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("📊  Acte 1 · Quoi ?"),
+                                    tags$p("Ce qui se vend : types de biens, quartiers et qualité.")
+                                  )
+                       )
+                ),
+                column(4,
+                       actionLink("nav_acte2", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("🗺️  Acte 2 · Où ?"),
+                                    tags$p("La géographie des prix : NridgHt vs BrDale, écart ×3.9.")
+                                  )
+                       )
+                ),
+                column(4,
+                       actionLink("nav_acte3", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("🌳  Acte 3 · Environnement"),
+                                    tags$p("Prime parc +41 %, décote route artérielle −28 %.")
+                                  )
+                       )
+                )
+              ),
+              fluidRow(
+                column(4,
+                       actionLink("nav_acte4", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("🔍  Acte 4 · Pourquoi ?"),
+                                    tags$p("Les vrais facteurs du prix : qualité, surface, garage.")
+                                  )
+                       )
+                ),
+                column(4,
+                       actionLink("nav_acte5", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("📉  Acte 5 · Quand ?"),
+                                    tags$p("La crise de 2008 et la saisonnalité des ventes.")
+                                  )
+                       )
+                ),
+                column(4,
+                       actionLink("nav_reco", class = "parcours-card",
+                                  tags$div(
+                                    tags$h4("💡  Recommandations"),
+                                    tags$p("5 stratégies par profil : acheteur, vendeur, investisseur...")
+                                  )
+                       )
                 )
               )
       ),
-      
+
       tabItem(tabName = "acte1",
-              fluidRow(
-                box(width = 3,
-                    checkboxGroupInput("types", "Types de bien :",
-                                       choices = unique(train$BldgType),
-                                       selected = unique(train$BldgType))
-                ),
-                box(width = 5, title = "Distribution des prix par type de bien",
-                    plotOutput("density_prix"),
-                    p(em("Les maisons individuelles couvrent tous les segments de prix ; les duplex restent concentrés sous 200 000 $."))
-                ),
-                box(width = 4, title = "8 maisons sur 10 sont des maisons individuelles",
-                    plotlyOutput("donut_types"),
-                    p(em("83% du marché : la maison individuelle domine largement les transactions à Ames.")))
+              page_header(
+                title = "Quoi se vend sur ce marché ?",
+                meta  = "Acte 1 · Types de biens · Quartiers · Qualité"
               ),
-              
-              fluidRow(
-                box(width = 6, title = "Prix médian par quartier",
-                    plotOutput("lollipop_quartiers", height = 500),
-                    p(em("Les 25 quartiers forment 5 niveaux de prix distincts. La ligne rouge marque la médiane globale : 163 000 $."))
+              section_subtitle(
+                "Le marché d'Ames est dominé à 83 % par des maisons individuelles,
+     avec des prix allant de 35 000 $ à 755 000 $. Trois angles pour
+     comprendre ce qui se vend : le type de bien, le quartier, la qualité."
+              ),
+              tabsetPanel(
+                id = "acte1_subtabs",
+                type = "tabs",
+                
+                tabPanel("Types de biens",
+                         br(),
+                         fluidRow(
+                           column(3,
+                                  wellPanel(
+                                    checkboxGroupInput("types", "Types de bien :",
+                                                       choices = unique(train$BldgType),
+                                                       selected = unique(train$BldgType))
+                                  )
+                           ),
+                           column(5,
+                                  card(title = "Distribution des prix par type",
+                                       withSpinner(plotOutput("density_prix", height = 380), type = 6),
+                                       note_box("Les maisons individuelles couvrent tous les segments de prix ;
+                      les duplex restent concentrés sous 200 000 $.")
+                                  )
+                           ),
+                           column(4,
+                                  card(title = "Composition du marché",
+                                       withSpinner(plotlyOutput("donut_types", height = 380), type = 6),
+                                       note_box("8 maisons sur 10 vendues à Ames sont des maisons individuelles.")
+                                  )
+                           )
+                         )
                 ),
-                box(width = 6, title = "Prix par niveau de qualité",
-                    plotOutput("violin_qualite", height = 500),
-                    p(em("Chaque point de qualité supplémentaire génère environ 25 000 $ de prime — et la dispersion s'élargit avec la qualité."))
+                
+                tabPanel("Quartiers",
+                         br(),
+                         fluidRow(
+                           column(8,
+                                  card(title = "Prix médian par quartier",
+                                       withSpinner(plotOutput("lollipop_quartiers", height = 520), type = 6),
+                                       note_box("Les 25 quartiers forment 5 niveaux de prix distincts.
+                      La ligne rouge marque la médiane globale : 163 000 $.")
+                                  )
+                           )
+                         )
+                ),
+                
+                tabPanel("Qualité",
+                         br(),
+                         fluidRow(
+                           column(8,
+                                  card(title = "Prix par niveau de qualité",
+                                       withSpinner(plotOutput("violin_qualite", height = 520), type = 6),
+                                       note_box("Chaque point de qualité supplémentaire génère environ
+                      25 000 $ de prime — et la dispersion s'élargit avec la qualité.")
+                                  )
+                           )
+                         )
+                )
+              )
+      ),
+
+      tabItem(tabName = "acte2",
+              page_header(
+                title = "Où sont les maisons les plus chères ?",
+                meta  = "Acte 2 · Dispersion · Composition · Profils de quartiers"
+              ),
+              section_subtitle(
+                "NridgHt affiche 315 000 $ de prix médian, BrDale 80 000 $ — un écart
+     de ×3.9 dans la même ville, à 5 kilomètres de distance. La géographie
+     des prix se lit en trois temps : dispersion, composition, profils."
+              ),
+              tabsetPanel(
+                id = "acte2_subtabs",
+                type = "tabs",
+                
+                tabPanel("Dispersion",
+                         br(),
+                         fluidRow(
+                           column(12,
+                                  card(title = "Prix par quartier — médiane, quartiles et outliers",
+                                       withSpinner(highchartOutput("boxplot_quartiers", height = 500), type = 6),
+                                       note_box("Survolez chaque boîte pour les statistiques exactes.
+                      Northridge Heights concentre 3 fois plus de ventes premium
+                      que la moyenne des quartiers.")
+                                  )
+                           )
+                         )
+                ),
+                
+                tabPanel("Composition du marché",
+                         br(),
+                         fluidRow(
+                           column(6,
+                                  card(title = "Volume et prix par quartier",
+                                       withSpinner(highchartOutput("treemap_quartiers", height = 450), type = 6),
+                                       note_box("Surface = volume de ventes, couleur = prix médian.
+                      CollgCr et NAmes concentrent 21 % des ventes dans la
+                      fourchette médiane.")
+                                  )
+                           ),
+                           column(6,
+                                  card(title = "Composition typologique par quartier",
+                                       withSpinner(plotlyOutput("stacked_composition", height = 450), type = 6),
+                                       note_box("NPkVill est 100 % Townhouses ; OldTown est le quartier
+                      le plus diversifié en types de biens.")
+                                  )
+                           )
+                         )
+                ),
+                
+                tabPanel("Profils",
+                         br(),
+                         fluidRow(
+                           column(8,
+                                  card(title = "Profil multi-dimensionnel des 5 quartiers les plus chers",
+                                       withSpinner(plotOutput("radar_top5", height = 500), type = 6),
+                                       note_box("Cinq dimensions normalisées de 0 à 1. StoneBr est le plus
+                      équilibré ; NridgHt domine le prix mais pas la surface.")
+                                  )
+                           )
+                         )
+                )
+              )
+      ),
+
+      tabItem(tabName = "acte3",
+              page_header(
+                title = "L'environnement crée-t-il une prime ou une décote ?",
+                meta  = "Acte 3 · Condition1 · Prime parc +41 % · Décote route −28 %"
+              ),
+              section_subtitle(
+                "Vivre près d'un parc rapporte 68 000 $ de plus que vivre près d'une
+     route artérielle. Cet acte quantifie l'impact de l'environnement
+     immédiat sur le prix de vente."
+              ),
+              tabsetPanel(
+                id = "acte3_subtabs",
+                type = "tabs",
+                tabPanel("Impact sur le prix",
+                         br(),
+                         tags$div(class = "empty-state", "V11 Barres Condition1 · V12 Scatter coloré — en construction (Axelle)")
+                ),
+                tabPanel("Rareté des espaces verts",
+                         br(),
+                         tags$div(class = "empty-state", "V13 Nightingale Rose · V14 Waffle Chart — en construction (Axelle)")
+                )
+              )
+      ),
+
+      tabItem(tabName = "acte4",
+              page_header(
+                title = "Quels facteurs influencent vraiment le prix ?",
+                meta  = "Acte 4 · Corrélations · 3D · Réseau · Random Forest"
+              ),
+              section_subtitle(
+                "OverallQual (r = 0.79), GrLivArea (r = 0.71) et GarageCars (r = 0.64) :
+     les trois piliers du prix, confirmés par le Random Forest."
+              ),
+              tabsetPanel(
+                id = "acte4_subtabs",
+                type = "tabs",
+                tabPanel("Corrélations",
+                         br(),
+                         tags$div(class = "empty-state", "V15 Heatmap · V16 Scatter + lm() · V20 Réseau — en construction (Axelle)")
+                ),
+                tabPanel("Vue 3D",
+                         br(),
+                         tags$div(class = "empty-state", "V17 Bubble Chart · V18 Scatter 3D ★ — en construction (Axelle)")
+                ),
+                tabPanel("Profils premium",
+                         br(),
+                         tags$div(class = "empty-state", "V19 Parallel Coordinates · V21 Importance RF — en construction (Axelle)")
                 )
               )
       ),
       
-      tabItem(tabName = "acte2",
-              fluidRow(
-                box(width = 12, title = "Northridge Heights a 3 fois plus de ventes premium que la moyenne",
-                    highchartOutput("boxplot_quartiers", height = 500),
-                    p(em("Survolez chaque boîte pour les statistiques exactes. Northridge Heights concentre 3 fois plus de ventes premium que la moyenne.")))
+      tabItem(tabName = "acte5",
+              page_header(
+                title = "Comment les prix évoluent-ils dans le temps ?",
+                meta  = "Acte 5 · Crise 2008 · Ères de construction · Saisonnalité"
               ),
-              fluidRow(
-                box(width = 6, title = "CollgCr concentre 10% des ventes — le quartier le plus actif",
-                    highchartOutput("treemap_quartiers", height = 450),
-                    p(em("Surface = volume de ventes, couleur = prix médian. CollgCr et NAmes concentrent 21% des ventes dans la fourchette médiane."))),
-                box(width = 6, title = "NPkVill est 100% Townhouses · OldTown le plus diversifié",
-                    plotlyOutput("stacked_composition", height = 450),
-                    p(em("Chaque barre montre la répartition des 5 types de biens. Survolez pour les pourcentages exacts.")))
+              section_subtitle(
+                "167 000 $ en 2007, 155 000 $ en 2010 : −7,2 % en 36 mois. La crise a
+     réduit les prix mais n'a pas changé les règles du marché."
               ),
-              fluidRow(
-                box(width = 8, title = "StoneBr est le quartier le plus équilibré — NridgHt domine le prix mais pas la surface",
-                    plotOutput("radar_top5", height = 500),
-                    p(em("Cinq dimensions normalisées de 0 à 1. StoneBr est le plus équilibré ; NridgHt domine le prix mais pas la surface.")))
+              tabsetPanel(
+                id = "acte5_subtabs",
+                type = "tabs",
+                tabPanel("Évolution 2006-2010",
+                         br(),
+                         tags$div(class = "empty-state", "V22 Line Graph interactif — en construction (Axelle)")
+                ),
+                tabPanel("Ères et saisonnalité",
+                         br(),
+                         tags$div(class = "empty-state", "V23 Ridgeline · V24 Heatmap saisonnalité — en construction (Axelle)")
+                )
               )
       ),
       
-      tabItem(tabName = "acte3",
-              h3("Acte 3 · L'environnement crée-t-il une prime ou une décote ?"),
-              p("En construction — V11 à V14")
+      tabItem(tabName = "ml",
+              page_header(
+                title = "Modélisation prédictive",
+                meta  = "Régression linéaire · Random Forest · k-NN · Soumission Kaggle"
+              ),
+              section_subtitle(
+                "Trois modèles pour valider les conclusions de l'enquête et prédire
+     le prix sur les 1 459 maisons du fichier test Kaggle."
+              ),
+              tags$div(class = "empty-state", "Coefficient plot · Importance RF · k-NN · Score Kaggle — en construction (Axelle)")
       ),
       
-      tabItem(tabName = "acte4",
-              h3("Acte 4 · Quels facteurs influencent vraiment le prix ?"),
-              p("En construction — V15 à V21")
-      ),
-      
+      tabItem(tabName = "reco",
+              page_header(
+                title = "5 recommandations stratégiques",
+                meta  = "Acheteur · Vendeur · Investisseur · Promoteur · Urbaniste"
+              ),
+              section_subtitle(
+                "Cinq recommandations différenciées par profil d'acteur, ancrées
+     dans les résultats des cinq actes de l'enquête."
+              ),
+              tags$div(class = "empty-state", "Tableau des recommandations R1 à R5 — en construction")
+      ), 
+
       tabItem(tabName = "acte5",
               h3("Acte 5 · Comment les prix évoluent-ils dans le temps ?"),
               p("En construction — V22 à V24")
       ),
-      
+
       tabItem(tabName = "ml",
               h3("Modélisation prédictive"),
               p("En construction — Régression · Random Forest · k-NN · Kaggle")
       ),
-      
+
       tabItem(tabName = "reco",
               h3("5 recommandations stratégiques"),
               p("En construction — par profil d'acteur")
@@ -132,7 +384,13 @@ ui <- dashboardPage(
   )
 )
 
-server <- function(input, output) {
+server <- function(input, output, session) {
+  observeEvent(input$nav_acte1, updateTabItems(session, "main_tabs", "acte1"))
+  observeEvent(input$nav_acte2, updateTabItems(session, "main_tabs", "acte2"))
+  observeEvent(input$nav_acte3, updateTabItems(session, "main_tabs", "acte3"))
+  observeEvent(input$nav_acte4, updateTabItems(session, "main_tabs", "acte4"))
+  observeEvent(input$nav_acte5, updateTabItems(session, "main_tabs", "acte5"))
+  observeEvent(input$nav_reco,  updateTabItems(session, "main_tabs", "reco"))
   donnees <- reactive({
     if (input$quartiers_filtre == "Tous") {
       train
