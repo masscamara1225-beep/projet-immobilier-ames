@@ -1,0 +1,119 @@
+---
+title: "Marché Immobilier d'Ames · 2006-2010"
+output:
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(plotly)
+library(highcharter)
+
+train <- read.csv("../data/train_clean.csv", stringsAsFactors = FALSE)
+train$OverallQual <- factor(train$OverallQual, levels = 1:10, ordered = TRUE)
+```
+
+Accueil
+=====================================
+
+Row
+-------------------------------------
+
+### Prix médian global
+
+```{r}
+valueBox("163 000 $", caption = "Prix médian global", icon = "fa-home", color = "primary")
+```
+
+### Quartier le plus cher
+
+```{r}
+valueBox("NridgHt", caption = "Quartier le + cher · 315 000 $", icon = "fa-star", color = "success")
+```
+
+### Surface médiane
+
+```{r}
+valueBox("1 515 ft²", caption = "Surface médiane", icon = "fa-ruler-combined", color = "info")
+```
+
+### Qualité moyenne
+
+```{r}
+valueBox("6.1 / 10", caption = "Qualité moyenne (OverallQual)", icon = "fa-medal", color = "warning")
+```
+
+### Amplitude marché
+
+```{r}
+valueBox("×21", caption = "De 35k$ à 755k$", icon = "fa-arrows-alt-v", color = "danger")
+```
+
+Row
+-------------------------------------
+
+### L'enquête
+
+En 2007, une maison à Ames valait **755 000 $**. La même année, une autre valait **35 000 $**. 
+Même ville, 5 kilomètres d'écart. 
+
+Notre enquête en 5 actes : **1 460 transactions**, **80 variables**, une seule question — 
+*qu'est-ce qui fait le prix d'une maison ?*
+
+- **Acte 1 · Quoi ?** — Ce qui se vend sur ce marché
+- **Acte 2 · Où ?** — La géographie des prix  
+- **Acte 3 · Environnement** — Prime parc, décote route
+- **Acte 4 · Pourquoi ?** — Les vrais facteurs du prix
+- **Acte 5 · Quand ?** — La crise de 2008 et la saisonnalité
+
+### La crise de 2008 en un graphique
+
+```{r}
+evolution <- train %>%
+  group_by(YrSold) %>%
+  summarise(med = median(SalePrice))
+
+ggplot(evolution, aes(x = YrSold, y = med)) +
+  geom_line(color = "#c8392b", linewidth = 1.2) +
+  geom_point(color = "#c8392b", size = 3) +
+  scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "k")) +
+  labs(x = NULL, y = "Prix médian") +
+  theme_minimal()
+```
+
+
+
+
+Marché (Acte 1)
+=====================================
+
+Row
+-------------------------------------
+
+### Distribution des prix par type de bien
+
+```{r}
+ggplot(train, aes(x = SalePrice, fill = BldgType)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_brewer(palette = "Set2") +
+  scale_x_continuous(labels = label_dollar(scale = 1/1000, suffix = "k")) +
+  labs(x = "Prix de vente", y = NULL, fill = "Type") +
+  theme_minimal() +
+  theme(axis.text.y = element_blank())
+```
+
+
+
+### Composition du marché
+
+```{r}
+bldg_df <- train %>% count(BldgType) %>% arrange(desc(n))
+plot_ly(bldg_df, labels = ~BldgType, values = ~n,
+        type = "pie", hole = 0.55, textinfo = "label+percent")
+```
+
