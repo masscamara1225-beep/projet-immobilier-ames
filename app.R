@@ -67,7 +67,16 @@ ui <- dashboardPage(
       ),
       
       tabItem(tabName = "acte2",
-              h4("En construction — V7 à V10")
+              fluidRow(
+                box(width = 12, title = "Northridge Heights a 3 fois plus de ventes premium que la moyenne",
+                    highchartOutput("boxplot_quartiers", height = 500))
+              ),
+              fluidRow(
+                box(width = 6, title = "CollgCr concentre 10% des ventes — le quartier le plus actif",
+                    highchartOutput("treemap_quartiers", height = 450)),
+                box(width = 6, title = "NPkVill est 100% Townhouses · OldTown le plus diversifié",
+                    plotlyOutput("stacked_composition", height = 450))
+              )
       )
     )
   )
@@ -121,6 +130,41 @@ server <- function(input, output) {
     plot_ly(bldg_df, labels = ~BldgType, values = ~n,
             type = "pie", hole = 0.55, textinfo = "label+percent") %>%
       layout(showlegend = FALSE)
+  })
+  
+  output$boxplot_quartiers <- renderHighchart({
+    box_data <- data_to_boxplot(train, SalePrice, Neighborhood,
+                                add_outliers = TRUE, name = "Prix")
+    highchart() %>%
+      hc_xAxis(type = "category", title = list(text = "Quartier")) %>%
+      hc_yAxis(title = list(text = "Prix de vente ($)")) %>%
+      hc_add_series_list(box_data) %>%
+      hc_legend(enabled = FALSE)
+  })
+  
+  output$treemap_quartiers <- renderHighchart({
+    neigh_df <- train %>%
+      group_by(Neighborhood) %>%
+      summarise(n = n(), med = median(SalePrice))
+    
+    hchart(neigh_df, "treemap",
+           hcaes(x = Neighborhood, value = n, color = med)) %>%
+      hc_colorAxis(stops = color_stops(10, c("#c8392b", "#f5f5f5", "#2d7a55")))
+  })
+  
+  output$stacked_composition <- renderPlotly({
+    top15 <- train %>% count(Neighborhood, sort = TRUE) %>% head(15) %>% pull(Neighborhood)
+    
+    comp_df <- train %>%
+      filter(Neighborhood %in% top15) %>%
+      count(Neighborhood, BldgType) %>%
+      group_by(Neighborhood) %>%
+      mutate(pct = n / sum(n)) %>%
+      ungroup()
+    
+    plot_ly(comp_df, x = ~Neighborhood, y = ~pct, color = ~BldgType, type = "bar") %>%
+      layout(barmode = "stack", yaxis = list(title = "", tickformat = ".0%"),
+             xaxis = list(title = ""), legend = list(orientation = "h", y = -0.15))
   })
 }
 
