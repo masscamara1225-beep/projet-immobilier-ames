@@ -76,6 +76,10 @@ ui <- dashboardPage(
                     highchartOutput("treemap_quartiers", height = 450)),
                 box(width = 6, title = "NPkVill est 100% Townhouses · OldTown le plus diversifié",
                     plotlyOutput("stacked_composition", height = 450))
+              ),
+              fluidRow(
+                box(width = 8, title = "StoneBr est le quartier le plus équilibré — NridgHt domine le prix mais pas la surface",
+                    plotOutput("radar_top5", height = 500))
               )
       )
     )
@@ -165,6 +169,34 @@ server <- function(input, output) {
     plot_ly(comp_df, x = ~Neighborhood, y = ~pct, color = ~BldgType, type = "bar") %>%
       layout(barmode = "stack", yaxis = list(title = "", tickformat = ".0%"),
              xaxis = list(title = ""), legend = list(orientation = "h", y = -0.15))
+  })
+  output$radar_top5 <- renderPlot({
+    top5 <- train %>%
+      group_by(Neighborhood) %>%
+      summarise(
+        prix = median(SalePrice),
+        surface = median(GrLivArea),
+        qualite = median(as.numeric(OverallQual)),
+        garage = median(GarageCars),
+        recence = median(YearBuilt)
+      ) %>%
+      arrange(desc(prix)) %>%
+      head(5)
+    
+    normalise <- function(x) (x - min(x)) / (max(x) - min(x))
+    radar_vals <- as.data.frame(lapply(top5[, -1], normalise))
+    rownames(radar_vals) <- top5$Neighborhood
+    radar_df <- rbind(rep(1, 5), rep(0, 5), radar_vals)
+    
+    couleurs <- c("#c8392b", "#2d5fa8", "#d4890a", "#2d7a55", "#1e7a7a")
+    
+    fmsb::radarchart(radar_df,
+                     pcol = couleurs,
+                     pfcol = paste0(couleurs, "44"),
+                     plwd = 2, cglcol = "grey", axislabcol = "grey",
+                     vlabels = c("Prix", "Surface", "Qualité", "Garage", "Récence"))
+    legend("topright", legend = rownames(radar_vals),
+           col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.9)
   })
 }
 
