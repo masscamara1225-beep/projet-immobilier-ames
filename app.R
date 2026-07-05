@@ -54,7 +54,15 @@ ui <- dashboardPage(
                                        choices = unique(train$BldgType),
                                        selected = unique(train$BldgType))
                 ),
-                box(width = 9, plotOutput("density_prix"))
+                box(width = 5, title = "Distribution des prix par type de bien",
+                    plotOutput("density_prix")),
+                box(width = 4, title = "8 maisons sur 10 sont des maisons individuelles",
+                    plotlyOutput("donut_types"))
+              ),
+              
+              fluidRow(
+                box(width = 6, title = "Prix médian par quartier", plotOutput("lollipop_quartiers", height = 500)),
+                box(width = 6, title = "Prix par niveau de qualité", plotOutput("violin_qualite", height = 500))
               )
       ),
       
@@ -78,6 +86,41 @@ server <- function(input, output) {
            x = "Prix de vente", y = NULL, fill = "Type") +
       theme_minimal() +
       theme(axis.text.y = element_blank())
+  })
+  output$lollipop_quartiers <- renderPlot({
+    train %>%
+      group_by(Neighborhood) %>%
+      summarise(prix_median = median(SalePrice)) %>%
+      ggplot(aes(x = prix_median, y = reorder(Neighborhood, prix_median))) +
+      geom_segment(aes(xend = 0, yend = Neighborhood), color = "#d8d4cc") +
+      geom_point(aes(color = prix_median), size = 3) +
+      scale_color_distiller(palette = "Blues", direction = 1) +
+      geom_vline(xintercept = median_global, color = "red", linetype = "dashed") +
+      scale_x_continuous(labels = label_dollar(scale = 1/1000, suffix = "k")) +
+      labs(x = "Prix médian", y = NULL) +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+  
+  output$violin_qualite <- renderPlot({
+    ggplot(train, aes(x = OverallQual, y = SalePrice, fill = OverallQual)) +
+      geom_violin(trim = FALSE, alpha = 0.8) +
+      geom_boxplot(width = 0.1, fill = "white", alpha = 0.7) +
+      scale_fill_manual(values = colorRampPalette(c("#deebf7", "#2d5fa8"))(10)) +
+      scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "k")) +
+      labs(x = "Qualité générale", y = "Prix") +
+      theme_minimal() +
+      theme(legend.position = "none")
+  })
+  output$donut_types <- renderPlotly({
+    bldg_df <- train %>%
+      filter(BldgType %in% input$types) %>%
+      count(BldgType) %>%
+      arrange(desc(n))
+    
+    plot_ly(bldg_df, labels = ~BldgType, values = ~n,
+            type = "pie", hole = 0.55, textinfo = "label+percent") %>%
+      layout(showlegend = FALSE)
   })
 }
 
