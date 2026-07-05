@@ -7,6 +7,21 @@ ui <- dashboardPage(
       menuItem("Accueil", tabName = "accueil", icon = icon("house")),
       menuItem("Acte 1 · Marché", tabName = "acte1", icon = icon("chart-column")),
       menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map"))
+    ),
+    dashboardSidebar(
+      sidebarMenu(
+        menuItem("Accueil", tabName = "accueil", icon = icon("house")),
+        menuItem("Acte 1 · Marché", tabName = "acte1", icon = icon("chart-column")),
+        menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map")),
+        menuItem("Acte 3 · Environnement", tabName = "acte3", icon = icon("tree")),
+        menuItem("Acte 4 · Facteurs", tabName = "acte4", icon = icon("magnifying-glass-chart")),
+        menuItem("Acte 5 · Temporel", tabName = "acte5", icon = icon("clock")),
+        menuItem("Machine Learning", tabName = "ml", icon = icon("robot")),
+        menuItem("Recommandations", tabName = "reco", icon = icon("lightbulb"))
+      ),
+      selectInput("quartiers_filtre", "Filtrer par quartier :",
+                  choices = c("Tous", sort(unique(train$Neighborhood))),
+                  selected = "Tous")
     )
   ),
   
@@ -87,9 +102,16 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
+  donnees <- reactive({
+    if (input$quartiers_filtre == "Tous") {
+      train
+    } else {
+      train %>% filter(Neighborhood == input$quartiers_filtre)
+    }
+  })
   
   output$density_prix <- renderPlot({
-    train %>%
+    donnees() %>%
       filter(BldgType %in% input$types) %>%
       ggplot(aes(x = SalePrice, fill = BldgType)) +
       geom_density(alpha = 0.5) +
@@ -116,17 +138,21 @@ server <- function(input, output) {
   })
   
   output$violin_qualite <- renderPlot({
-    ggplot(train, aes(x = OverallQual, y = SalePrice, fill = OverallQual)) +
+    ggplot(donnees(), aes(x = OverallQual, y = SalePrice, fill = OverallQual)) +
       geom_violin(trim = FALSE, alpha = 0.8) +
       geom_boxplot(width = 0.1, fill = "white", alpha = 0.7) +
-      scale_fill_manual(values = colorRampPalette(c("#deebf7", "#2d5fa8"))(10)) +
+      scale_fill_manual(
+        values = setNames(colorRampPalette(c("#deebf7", "#2d5fa8"))(10), levels(train$OverallQual)),
+        drop = TRUE
+      ) +
+      scale_x_discrete(drop = TRUE) +
       scale_y_continuous(labels = label_dollar(scale = 1/1000, suffix = "k")) +
       labs(x = "Qualité générale", y = "Prix") +
       theme_minimal() +
       theme(legend.position = "none")
   })
   output$donut_types <- renderPlotly({
-    bldg_df <- train %>%
+    bldg_df <- donnees() %>%
       filter(BldgType %in% input$types) %>%
       count(BldgType) %>%
       arrange(desc(n))
