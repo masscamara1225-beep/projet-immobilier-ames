@@ -6,32 +6,25 @@ ui <- dashboardPage(
     sidebarMenu(
       menuItem("Accueil", tabName = "accueil", icon = icon("house")),
       menuItem("Acte 1 · Marché", tabName = "acte1", icon = icon("chart-column")),
-      menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map"))
+      menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map")),
+      menuItem("Acte 3 · Environnement", tabName = "acte3", icon = icon("tree")),
+      menuItem("Acte 4 · Facteurs", tabName = "acte4", icon = icon("magnifying-glass-chart")),
+      menuItem("Acte 5 · Temporel", tabName = "acte5", icon = icon("clock")),
+      menuItem("Machine Learning", tabName = "ml", icon = icon("robot")),
+      menuItem("Recommandations", tabName = "reco", icon = icon("lightbulb"))
     ),
-    dashboardSidebar(
-      sidebarMenu(
-        menuItem("Accueil", tabName = "accueil", icon = icon("house")),
-        menuItem("Acte 1 · Marché", tabName = "acte1", icon = icon("chart-column")),
-        menuItem("Acte 2 · Géographie", tabName = "acte2", icon = icon("map")),
-        menuItem("Acte 3 · Environnement", tabName = "acte3", icon = icon("tree")),
-        menuItem("Acte 4 · Facteurs", tabName = "acte4", icon = icon("magnifying-glass-chart")),
-        menuItem("Acte 5 · Temporel", tabName = "acte5", icon = icon("clock")),
-        menuItem("Machine Learning", tabName = "ml", icon = icon("robot")),
-        menuItem("Recommandations", tabName = "reco", icon = icon("lightbulb"))
-      ),
-      selectInput("quartiers_filtre", "Filtrer par quartier :",
-                  choices = c("Tous", sort(unique(train$Neighborhood))),
-                  selected = "Tous")
-    )
+    selectInput("quartiers_filtre", "Filtrer par quartier :",
+                choices = c("Tous", sort(unique(train$Neighborhood))),
+                selected = "Tous")
   ),
   
   dashboardBody(
     tags$head(tags$style(HTML("
-    .skin-blue .main-sidebar { background-color: #1e3a5f; }
-    .skin-blue .main-header .navbar { background-color: #2d5fa8; }
-    .skin-blue .main-header .logo { background-color: #24487e; }
-    .skin-blue .sidebar-menu > li.active > a { border-left-color: #c8392b; }
-  "))),
+      .skin-blue .main-sidebar { background-color: #1e3a5f; }
+      .skin-blue .main-header .navbar { background-color: #2d5fa8; }
+      .skin-blue .main-header .logo { background-color: #24487e; }
+      .skin-blue .sidebar-menu > li.active > a { border-left-color: #c8392b; }
+    "))),
     tabItems(
       tabItem(tabName = "accueil",
               h2("L'enquête"),
@@ -70,32 +63,70 @@ ui <- dashboardPage(
                                        selected = unique(train$BldgType))
                 ),
                 box(width = 5, title = "Distribution des prix par type de bien",
-                    plotOutput("density_prix")),
+                    plotOutput("density_prix"),
+                    p(em("Les maisons individuelles couvrent tous les segments de prix ; les duplex restent concentrés sous 200 000 $."))
+                ),
                 box(width = 4, title = "8 maisons sur 10 sont des maisons individuelles",
-                    plotlyOutput("donut_types"))
+                    plotlyOutput("donut_types"),
+                    p(em("83% du marché : la maison individuelle domine largement les transactions à Ames.")))
               ),
               
               fluidRow(
-                box(width = 6, title = "Prix médian par quartier", plotOutput("lollipop_quartiers", height = 500)),
-                box(width = 6, title = "Prix par niveau de qualité", plotOutput("violin_qualite", height = 500))
+                box(width = 6, title = "Prix médian par quartier",
+                    plotOutput("lollipop_quartiers", height = 500),
+                    p(em("Les 25 quartiers forment 5 niveaux de prix distincts. La ligne rouge marque la médiane globale : 163 000 $."))
+                ),
+                box(width = 6, title = "Prix par niveau de qualité",
+                    plotOutput("violin_qualite", height = 500),
+                    p(em("Chaque point de qualité supplémentaire génère environ 25 000 $ de prime — et la dispersion s'élargit avec la qualité."))
+                )
               )
       ),
       
       tabItem(tabName = "acte2",
               fluidRow(
                 box(width = 12, title = "Northridge Heights a 3 fois plus de ventes premium que la moyenne",
-                    highchartOutput("boxplot_quartiers", height = 500))
+                    highchartOutput("boxplot_quartiers", height = 500),
+                    p(em("Survolez chaque boîte pour les statistiques exactes. Northridge Heights concentre 3 fois plus de ventes premium que la moyenne.")))
               ),
               fluidRow(
                 box(width = 6, title = "CollgCr concentre 10% des ventes — le quartier le plus actif",
-                    highchartOutput("treemap_quartiers", height = 450)),
+                    highchartOutput("treemap_quartiers", height = 450),
+                    p(em("Surface = volume de ventes, couleur = prix médian. CollgCr et NAmes concentrent 21% des ventes dans la fourchette médiane."))),
                 box(width = 6, title = "NPkVill est 100% Townhouses · OldTown le plus diversifié",
-                    plotlyOutput("stacked_composition", height = 450))
+                    plotlyOutput("stacked_composition", height = 450),
+                    p(em("Chaque barre montre la répartition des 5 types de biens. Survolez pour les pourcentages exacts.")))
               ),
               fluidRow(
                 box(width = 8, title = "StoneBr est le quartier le plus équilibré — NridgHt domine le prix mais pas la surface",
-                    plotOutput("radar_top5", height = 500))
+                    plotOutput("radar_top5", height = 500),
+                    p(em("Cinq dimensions normalisées de 0 à 1. StoneBr est le plus équilibré ; NridgHt domine le prix mais pas la surface.")))
               )
+      ),
+      
+      tabItem(tabName = "acte3",
+              h3("Acte 3 · L'environnement crée-t-il une prime ou une décote ?"),
+              p("En construction — V11 à V14")
+      ),
+      
+      tabItem(tabName = "acte4",
+              h3("Acte 4 · Quels facteurs influencent vraiment le prix ?"),
+              p("En construction — V15 à V21")
+      ),
+      
+      tabItem(tabName = "acte5",
+              h3("Acte 5 · Comment les prix évoluent-ils dans le temps ?"),
+              p("En construction — V22 à V24")
+      ),
+      
+      tabItem(tabName = "ml",
+              h3("Modélisation prédictive"),
+              p("En construction — Régression · Random Forest · k-NN · Kaggle")
+      ),
+      
+      tabItem(tabName = "reco",
+              h3("5 recommandations stratégiques"),
+              p("En construction — par profil d'acteur")
       )
     )
   )
