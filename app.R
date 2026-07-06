@@ -56,15 +56,17 @@ ui <- dashboardPage(
      parcourt 1 460 transactions et 80 variables pour répondre à une seule
      question : qu'est-ce qui fait le prix d'une maison ?"
               ),
-              fluidRow(
-                column(3, kpi_card("Prix médian", "163 000 $",
-                                   hint = "Référence marché", accent = COULEURS$bleu)),
-                column(3, kpi_card("Quartier le + cher", "NridgHt",
-                                   hint = "315 000 $ médian", accent = COULEURS$vert)),
-                column(3, kpi_card("Qualité moyenne", "6.1 / 10",
-                                   hint = "OverallQual", accent = COULEURS$orange)),
-                column(3, kpi_card("Amplitude", "×21",
-                                   hint = "de 35 000 $ à 755 000 $", accent = COULEURS$rouge))
+              tags$div(style = "display:flex; gap:16px; flex-wrap:wrap;",
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Prix médian", "163 000 $", hint = "Référence marché", accent = COULEURS$bleu)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Quartier le + cher", "NridgHt", hint = "315 000 $ médian", accent = COULEURS$vert)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Surface médiane", "1 515 ft²", hint = "Maison typique", accent = COULEURS$orange)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Qualité moyenne", "6.1 / 10", hint = "OverallQual", accent = COULEURS$jaune)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Amplitude", "×21", hint = "de 35 000 $ à 755 000 $", accent = COULEURS$rouge))
               ),
               fluidRow(
                 column(12,
@@ -149,6 +151,19 @@ ui <- dashboardPage(
               tabsetPanel(
                 id = "acte1_subtabs",
                 type = "tabs",
+                tabPanel("Distribution",
+                         br(),
+                         fluidRow(
+                           column(8,
+                                  card(title = "80 % des maisons se vendent entre 80 000 $ et 300 000 $ — mais des villas atteignent 755 000 $",
+                                       withSpinner(plotlyOutput("histo_prix", height = 420), type = 6),
+                                       note_box("La ligne rouge marque la médiane (163 000 $). La distribution
+                  est asymétrique à droite : quelques maisons très chères tirent
+                  la moyenne (181 000 $) au-dessus de la médiane.")
+                                  )
+                           )
+                         )
+                ),
                 
                 tabPanel("Types de biens",
                          br(),
@@ -511,6 +526,16 @@ server <- function(input, output, session) {
                      vlabels = c("Prix", "Surface", "Qualité", "Garage", "Récence"))
     legend("topright", legend = rownames(radar_vals),
            col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.9)
+  })
+  
+  output$histo_prix <- renderPlotly({
+    p <- ggplot(donnees(), aes(x = SalePrice)) +
+      geom_histogram(bins = 50, fill = "#2d5fa8", color = "white") +
+      geom_vline(xintercept = median_global, color = "red", linetype = "dashed") +
+      scale_x_continuous(labels = scales::dollar) +
+      labs(x = "Prix de vente", y = "Nombre de maisons") +
+      theme_minimal()
+    ggplotly(p)
   })
 }
 
