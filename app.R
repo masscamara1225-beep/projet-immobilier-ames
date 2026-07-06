@@ -56,15 +56,17 @@ ui <- dashboardPage(
      parcourt 1 460 transactions et 80 variables pour répondre à une seule
      question : qu'est-ce qui fait le prix d'une maison ?"
               ),
-              fluidRow(
-                column(3, kpi_card("Prix médian", "163 000 $",
-                                   hint = "Référence marché", accent = COULEURS$bleu)),
-                column(3, kpi_card("Quartier le + cher", "NridgHt",
-                                   hint = "315 000 $ médian", accent = COULEURS$vert)),
-                column(3, kpi_card("Qualité moyenne", "6.1 / 10",
-                                   hint = "OverallQual", accent = COULEURS$orange)),
-                column(3, kpi_card("Amplitude", "×21",
-                                   hint = "de 35 000 $ à 755 000 $", accent = COULEURS$rouge))
+              tags$div(style = "display:flex; gap:16px; flex-wrap:wrap;",
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Prix médian", "163 000 $", hint = "Référence marché", accent = COULEURS$bleu)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Quartier le + cher", "NridgHt", hint = "315 000 $ médian", accent = COULEURS$vert)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Surface médiane", "1 515 ft²", hint = "Maison typique", accent = COULEURS$orange)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Qualité moyenne", "6.1 / 10", hint = "OverallQual", accent = COULEURS$jaune)),
+                       tags$div(style = "flex:1; min-width:150px;",
+                                kpi_card("Amplitude", "×21", hint = "de 35 000 $ à 755 000 $", accent = COULEURS$rouge))
               ),
               fluidRow(
                 column(12,
@@ -149,6 +151,19 @@ ui <- dashboardPage(
               tabsetPanel(
                 id = "acte1_subtabs",
                 type = "tabs",
+                tabPanel("Distribution",
+                         br(),
+                         fluidRow(
+                           column(8,
+                                  card(title = "80 % des maisons se vendent entre 80 000 $ et 300 000 $ — mais des villas atteignent 755 000 $",
+                                       withSpinner(plotlyOutput("histo_prix", height = 420), type = 6),
+                                       note_box("La ligne rouge marque la médiane (163 000 $). La distribution
+                  est asymétrique à droite : quelques maisons très chères tirent
+                  la moyenne (181 000 $) au-dessus de la médiane.")
+                                  )
+                           )
+                         )
+                ),
                 
                 tabPanel("Types de biens",
                          br(),
@@ -161,16 +176,17 @@ ui <- dashboardPage(
                                   )
                            ),
                            column(5,
-                                  card(title = "Distribution des prix par type",
+                                  card(title = "Les maisons individuelles couvrent tous les segments — les duplex restent sous 200 000 $",
                                        withSpinner(plotOutput("density_prix", height = 380), type = 6),
-                                       note_box("Les maisons individuelles couvrent tous les segments de prix ;
-                      les duplex restent concentrés sous 200 000 $.")
+                                       note_box("Chaque courbe montre la répartition des prix d'un type de bien.
+                                                 Plus la courbe s'étale à droite, plus le type atteint des prix élevés.")
                                   )
                            ),
                            column(4,
-                                  card(title = "Composition du marché",
+                                  card(title = "8 maisons sur 10 vendues à Ames sont des maisons individuelles",
                                        withSpinner(plotlyOutput("donut_types", height = 380), type = 6),
-                                       note_box("8 maisons sur 10 vendues à Ames sont des maisons individuelles.")
+                                       note_box("Les townhouses (TwnhsE + Twnhs) pèsent 11 % du marché ;
+                                                 duplex et bi-familles se partagent les 6 % restants.")
                                   )
                            )
                          )
@@ -180,10 +196,10 @@ ui <- dashboardPage(
                          br(),
                          fluidRow(
                            column(8,
-                                  card(title = "Prix médian par quartier",
+                                  card(title = "NridgHt est 4 fois plus cher que BrDale — même ville, 5 km de distance",
                                        withSpinner(plotOutput("lollipop_quartiers", height = 520), type = 6),
-                                       note_box("Les 25 quartiers forment 5 niveaux de prix distincts.
-                      La ligne rouge marque la médiane globale : 163 000 $.")
+                                       note_box("La ligne rouge marque la médiane globale (163 000 $).
+                                                 Les 25 quartiers se répartissent en 5 paliers de prix distincts.")
                                   )
                            )
                          )
@@ -193,10 +209,10 @@ ui <- dashboardPage(
                          br(),
                          fluidRow(
                            column(8,
-                                  card(title = "Prix par niveau de qualité",
+                                  card(title = "La qualité 10/10 vaut 7 fois plus que la 1/10 — et la dispersion s'élargit avec la qualité",
                                        withSpinner(plotOutput("violin_qualite", height = 520), type = 6),
-                                       note_box("Chaque point de qualité supplémentaire génère environ
-                      25 000 $ de prime — et la dispersion s'élargit avec la qualité.")
+                                       note_box("Chaque violon montre la distribution des prix pour un niveau de qualité.
+                                                En moyenne, chaque point de qualité supplémentaire vaut ~25 000 $.")
                                   )
                            )
                          )
@@ -222,11 +238,10 @@ ui <- dashboardPage(
                          br(),
                          fluidRow(
                            column(12,
-                                  card(title = "Prix par quartier — médiane, quartiles et outliers",
+                                  card(title = "Northridge Heights a 3 fois plus de ventes premium que la moyenne d'Ames",
                                        withSpinner(highchartOutput("boxplot_quartiers", height = 500), type = 6),
-                                       note_box("Survolez chaque boîte pour les statistiques exactes.
-                      Northridge Heights concentre 3 fois plus de ventes premium
-                      que la moyenne des quartiers.")
+                                       note_box("Survolez chaque boîte pour la médiane, les quartiles et les valeurs extrêmes.
+                                                 Les points isolés sont les ventes atypiques (outliers).")
                                   )
                            )
                          )
@@ -236,18 +251,17 @@ ui <- dashboardPage(
                          br(),
                          fluidRow(
                            column(6,
-                                  card(title = "Volume et prix par quartier",
+                                  card(title = "CollgCr concentre 10 % des ventes — le quartier le plus actif du marché",
                                        withSpinner(highchartOutput("treemap_quartiers", height = 450), type = 6),
-                                       note_box("Surface = volume de ventes, couleur = prix médian.
-                      CollgCr et NAmes concentrent 21 % des ventes dans la
-                      fourchette médiane.")
+                                       note_box("Surface du rectangle = volume de ventes · couleur = prix médian.
+                                                 Avec NAmes, ils totalisent 21 % des transactions, dans la fourchette médiane.")
                                   )
                            ),
                            column(6,
-                                  card(title = "Composition typologique par quartier",
+                                  card(title = "NPkVill est 100 % Townhouses · OldTown est le plus diversifié",
                                        withSpinner(plotlyOutput("stacked_composition", height = 450), type = 6),
-                                       note_box("NPkVill est 100 % Townhouses ; OldTown est le quartier
-                      le plus diversifié en types de biens.")
+                                       note_box("Chaque barre montre la répartition des types de biens d'un quartier,
+                                                ramenée à 100 %. Cliquez sur la légende pour isoler un type.")
                                   )
                            )
                          )
@@ -257,10 +271,10 @@ ui <- dashboardPage(
                          br(),
                          fluidRow(
                            column(8,
-                                  card(title = "Profil multi-dimensionnel des 5 quartiers les plus chers",
+                                  card(title = "StoneBr est le quartier le plus équilibré — NridgHt domine le prix mais pas la surface",
                                        withSpinner(plotOutput("radar_top5", height = 500), type = 6),
-                                       note_box("Cinq dimensions normalisées de 0 à 1. StoneBr est le plus
-                      équilibré ; NridgHt domine le prix mais pas la surface.")
+                                       note_box("Cinq dimensions normalisées de 0 à 1 : prix, surface, qualité,
+                                                garage, récence. Plus le polygone est large, plus le profil est complet.")
                                   )
                            )
                          )
@@ -512,6 +526,16 @@ server <- function(input, output, session) {
                      vlabels = c("Prix", "Surface", "Qualité", "Garage", "Récence"))
     legend("topright", legend = rownames(radar_vals),
            col = couleurs, lty = 1, lwd = 2, bty = "n", cex = 0.9)
+  })
+  
+  output$histo_prix <- renderPlotly({
+    p <- ggplot(donnees(), aes(x = SalePrice)) +
+      geom_histogram(bins = 50, fill = "#2d5fa8", color = "white") +
+      geom_vline(xintercept = median_global, color = "red", linetype = "dashed") +
+      scale_x_continuous(labels = scales::dollar) +
+      labs(x = "Prix de vente", y = "Nombre de maisons") +
+      theme_minimal()
+    ggplotly(p)
   })
 }
 
