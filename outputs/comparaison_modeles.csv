@@ -1,0 +1,6 @@
+Modele,RMSE,RMSE_pct_prix_median
+Random Forest,28324.364383971602,17.4
+Régression stepwise (AIC),32649.298378767897,20
+Ridge,33506.96083478555,20.6
+Lasso,34583.95551594779,21.2
+Régression linéaire simple,34832.898875814666,21.4
