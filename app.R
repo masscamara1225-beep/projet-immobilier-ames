@@ -190,19 +190,25 @@ ui <- dashboardPage(
                     style = "font-size:15px; color:#D8D0BE; margin-top:10px;"),
              tags$div(class = "splash-ring"),
              tags$script(HTML("
-        setTimeout(function() {
-          var s = document.getElementById('splash-screen');
-          if (s) { s.style.transition = 'opacity 0.5s'; s.style.opacity = '0';
-                   setTimeout(function(){ s.style.display = 'none'; }, 500); }
-        }, 3000);
-        $(document).on('click', '#sidebar-hamburger-btn', function() { $('body').toggleClass('sidebar-minimized'); });
-        function adaptSidebar() {
-          if (window.innerWidth < 992) { $('body').addClass('sidebar-minimized'); }
-          else { $('body').removeClass('sidebar-minimized'); }
-         }
-         $(document).ready(adaptSidebar);
-         $(window).on('resize', adaptSidebar);
-      "))
+            setTimeout(function() {
+              var s = document.getElementById('splash-screen');
+              if (s) { s.style.transition = 'opacity 0.5s'; s.style.opacity = '0';
+                       setTimeout(function(){ s.style.display = 'none'; }, 500); }
+            }, 3000);
+            $(document).on('click', '#sidebar-hamburger-btn', function() { $('body').toggleClass('sidebar-minimized'); });
+            var lastWidth = window.innerWidth;
+            function adaptSidebar() {
+              if (window.innerWidth < 992) { $('body').addClass('sidebar-minimized'); }
+              else { $('body').removeClass('sidebar-minimized'); }
+            }
+            $(document).ready(adaptSidebar);
+            $(window).on('resize', function() {
+              if (Math.abs(window.innerWidth - lastWidth) > 50) {
+                lastWidth = window.innerWidth;
+                adaptSidebar();
+              }
+            });
+          "))
     ),
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = paste0("style.css?v=", as.numeric(Sys.time())))),
     
@@ -211,7 +217,7 @@ ui <- dashboardPage(
       ## ---------- ACCUEIL ----------
       tabItem(tabName = "accueil",
               uiOutput("hero_carousel"),
-              page_header(title = "Une maison peut en valoir 21 fois une autre",
+              page_header(title = "Une maison peut valoir 21 fois une autre",
                           meta = "Ames, Iowa. 1 460 transactions. 2006-2010. Kaggle House Prices"),
               section_subtitle("En 2007, une maison à Ames valait 755 000 dollars. La même année, une autre valait 35 000 dollars. Même ville, 5 kilomètres d'écart. Notre enquête parcourt 1 460 transactions et 80 variables pour répondre à une seule question. Qu'est-ce qui fait le prix d'une maison ?"),
               tags$div(style = "display:flex; gap:16px; flex-wrap:wrap;",
