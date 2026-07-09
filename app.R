@@ -196,6 +196,12 @@ ui <- dashboardPage(
                    setTimeout(function(){ s.style.display = 'none'; }, 500); }
         }, 3000);
         $(document).on('click', '#sidebar-hamburger-btn', function() { $('body').toggleClass('sidebar-minimized'); });
+        function adaptSidebar() {
+          if (window.innerWidth < 992) { $('body').addClass('sidebar-minimized'); }
+          else { $('body').removeClass('sidebar-minimized'); }
+         }
+         $(document).ready(adaptSidebar);
+         $(window).on('resize', adaptSidebar);
       "))
     ),
     tags$head(tags$link(rel = "stylesheet", type = "text/css", href = paste0("style.css?v=", as.numeric(Sys.time())))),

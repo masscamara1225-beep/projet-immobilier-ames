@@ -274,12 +274,36 @@
   table.dataTable thead th { background: var(--white-warm); color: var(--text); border-bottom: 2px solid var(--border) !important; }
   
   @media (max-width: 992px) {
-    .card-min-body [class*="col-sm-"], .card-min-body [class*="col-md-"] { width: 100% !important; float: none !important; }
+  /* Le rail d'icônes reste TOUJOURS visible et fixe */
+  body.sidebar-minimized .main-sidebar {
+    display: block !important;
+    width: 54px !important;
+    position: fixed !important;
+    height: 100vh !important;
+    z-index: 2000;
+    transform: none !important;
+  }
+  .content-wrapper, .right-side, .main-footer {
+    margin-left: 54px !important;
+  }
+  /* Menu ouvert via le hamburger : panneau par-dessus le contenu */
+  body:not(.sidebar-minimized) .main-sidebar {
+    display: block !important;
+    width: 240px !important;
+    position: fixed !important;
+    height: 100vh !important;
+    z-index: 3000;
+    transform: none !important;
+    box-shadow: 4px 0 18px rgba(0, 0, 0, 0.35);
+  }
+}
   }
   @media (max-width: 768px) {
-    .main-sidebar, .left-side { width: 100% !important; position: relative !important; height: auto !important; }
-    .content-wrapper, .right-side, .main-footer { margin-left: 0 !important; height: auto !important; }
-    .ph-title { font-size: 19px; } .ph-title::after { display: none; }
-    .hero-carousel { height: 200px; } .kpi-value { font-size: 21px; } .mini-nav { font-size: 10px; }
-  }
+  .ph-title { font-size: 19px; }
+  .ph-title::after { display: none; }
+  .hero-carousel { height: 200px; }
+  .kpi-value { font-size: 21px; }
+  .mini-nav { font-size: 10px; }
+  .content { padding: 10px !important; }
+}
   @media (max-width: 480px) { .content-wrapper { padding: 10px !important; } .card-min-body { padding: 12px; } }
