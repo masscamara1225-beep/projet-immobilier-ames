@@ -17,7 +17,6 @@ library(fmsb)
 library(corrplot)
 library(scales)
 library(here)
-library(AmesHousing)
 library(leaflet)
 library(DT)
 
@@ -75,11 +74,8 @@ num_vars <- train %>% select(where(is.numeric)) %>% select(-Id) %>% select(SaleP
 cor_m <- cor(num_vars, use = "complete.obs")
 
 train_rf <- train %>% select(-Id) %>% mutate(across(where(is.character), as.factor)) %>% drop_na()
-set.seed(42)
-rf_model <- randomForest(SalePrice ~ ., data = train_rf, ntree = 500, importance = TRUE)
-imp_df <- as.data.frame(importance(rf_model)) %>% rownames_to_column("Variable") %>%
-  arrange(desc(IncNodePurity)) %>% head(20) %>%
-  mutate(Variable = recode(Variable, !!!labels_variables))
+rf_model <- readRDS(here("data", "rf_model.rds"))
+imp_df   <- readRDS(here("data", "imp_df.rds"))
 
 top8 <- train %>% count(Neighborhood, sort = TRUE) %>% slice_head(n = 8) %>% pull(Neighborhood)
 pct_top8 <- round(100 * sum(train$Neighborhood %in% top8) / nrow(train))
@@ -90,13 +86,7 @@ comparaison_modeles_df <- data.frame(
   RMSE = c(34833,32649,33507,34584,28324)
 ) %>% arrange(RMSE) %>% mutate(RMSE = scales::dollar(RMSE))
 
-geo_coords <- AmesHousing::ames_geo
-ames_raw   <- AmesHousing::ames_raw
-ames_geo_complet <- ames_raw %>% select(PID, Neighborhood) %>% inner_join(geo_coords, by = "PID")
-centroides_quartiers <- ames_geo_complet %>% group_by(Neighborhood) %>%
-  summarise(lon = mean(Longitude, na.rm = TRUE), lat = mean(Latitude, na.rm = TRUE))
-carte_data <- train %>% group_by(Neighborhood) %>% summarise(prix_median = median(SalePrice), n = n()) %>%
-  inner_join(centroides_quartiers, by = "Neighborhood") %>% mutate(nom_complet = recode(Neighborhood, !!!noms_quartiers))
+carte_data <- readRDS(here("data", "carte_data.rds"))
 
 profil_quartiers <- train %>% group_by(Neighborhood) %>%
   summarise(prix = median(SalePrice), surface = median(GrLivArea),
