@@ -1,0 +1,79 @@
+# Présentation des données
+
+## Le jeu de données
+
+Le dataset *Ames Housing*, publié par *Dean De Cock en 2011*, est une référence de la data science au même titre que Titanic ou Iris. Le fichier principal, `train.csv`, contient 1 460 observations décrites par 80 variables explicatives, plus la variable cible `SalePrice` (prix de vente en dollars). Un second fichier, `test.csv` (1 459 observations sans prix), sert de support à la validation externe sur Kaggle.
+
+Chaque observation est une transaction immobilière réalisée à Ames entre 2006 et 2010. Les 80 variables couvrent toutes les dimensions d'un bien : localisation (quartier, zonage), dimensions (surfaces habitable, sous-sol, garage, terrain), qualité (notes globales et par équipement), équipements (cheminée, piscine, clôture), et circonstances de la vente (année, mois, condition de vente).
+
+## Les cinq indicateurs de référence
+
+Cinq KPIs résument le marché et servent de repères tout au long de l'analyse :
+
+| Indicateur | Valeur | Lecture |
+|---|---|---|
+| Prix médian global | 163 000 $ | Référence marché |
+| Quartier le plus cher | Northridge Heights | 315 000 $ médian |
+| Surface habitable médiane | 1 515 ft² | Maison typique |
+| Qualité moyenne | 6,1 / 10 | OverallQual moyen |
+| Amplitude du marché | ×21 | De 34 900 $ à 755 000 $ |
+
+## Portraits de trois individus
+
+Pour rendre l'amplitude du marché concrète, trois transactions réelles du dataset :
+
+| Critère | Maison la plus moins chère | Maison médiane | Maison la plus chère |
+|---|---|---|---|
+| Prix de vente | 34 900 $ | 163 000 $ | 755 000 $ |
+| Quartier | IDOTRR (voie ferrée) | North Ames | Northridge |
+| Surface habitable | 720 ft² | 1 261 ft² | 4 316 ft² |
+| Qualité globale | 4/10 | 6/10 | 10/10 |
+| Année de construction | 1920 | 1958 | 1994 |
+| Places de garage | Aucune | 2 | 3 |
+| Condition de vente | Anormale (saisie) | Normale | Normale |
+| Année de vente | 2009 (crise) | 2008 | 2007 (avant crise) |
+
+La maison la plus chère vaut 21 fois la moins chère : surface six fois supérieure, qualité maximale contre qualité médiocre, quartier haut de gamme contre bordure de voie ferrée, et vente avant la crise contre saisie en pleine crise. Ce portrait croisé annonce déjà les facteurs que l'analyse confirmera.
+
+## Classification des variables
+
+La première étape méthodologique consiste à classer chaque variable selon sa nature, car le type de données détermine à la fois le traitement dans R et la visualisation adaptée :
+
+```{r tab_classification}
+classif <- data.frame(
+  Type = c("Qualitatives nominales", "Qualitatives ordinales",
+           "Quantitatives continues", "Quantitatives discrètes",
+           "Temporelles", "Faussement numériques"),
+  Nb = c(38, 10, 15, 9, 5, 5),
+  Exemples = c("Neighborhood, BldgType, Condition1",
+               "ExterQual, KitchenQual, BsmtQual",
+               "SalePrice, GrLivArea, LotArea",
+               "BedroomAbvGr, GarageCars, Fireplaces",
+               "YearBuilt, YrSold, MoSold",
+               "MSSubClass, OverallQual, MoSold"),
+  Traitement = c("as.factor()", "factor(ordered = TRUE)", "Directement",
+                 "Directement", "as.factor() ou cut()", "Conversion en facteur")
+)
+kable(classif, booktabs = TRUE,
+      col.names = c("Type", "Nb", "Exemples", "Traitement R")) %>%
+  kable_styling(latex_options = "hold_position", font_size = 9) %>%
+  column_spec(1, width = "3.8cm") %>%
+  column_spec(3, width = "5.2cm") %>%
+  column_spec(4, width = "3.6cm")
+```
+Le dernier groupe mérite attention : des variables comme `MSSubClass` (codes de types de logement) ou `OverallQual` (échelle ordinale de 1 à 10) sont stockées comme des entiers, mais les traiter comme des nombres serait une erreur méthodologique — le code 60 ne vaut pas « trois fois » le code 20, et une note de qualité est une échelle ordonnée, pas une mesure métrique. Leur conversion en facteurs conditionne la validité de toutes les visualisations de l'Acte 1.
+
+## Distribution de la variable cible
+
+```{r fig_distribution_cible}
+ggplot(train, aes(x = SalePrice)) +
+  geom_histogram(bins = 50, fill = "#E8721C", color = "white") +
+  geom_vline(xintercept = median(train$SalePrice),
+             color = "#102A43", linetype = "dashed", linewidth = 0.8) +
+  scale_x_continuous(labels = dollar) +
+  labs(x = "Prix de vente", y = "Nombre de maisons") +
+  theme_minimal()
+```
+
+*Figure 1 — Distribution du prix de vente : une asymétrie à droite marquée.*
+La distribution de `SalePrice` est asymétrique à droite : le gros du marché se concentre entre 80 000 et 300 000 dollars, tandis qu'une longue queue de biens de luxe s'étire jusqu'à 755 000 dollars. Cette poignée de maisons très chères tire la moyenne (180 921 $) au-dessus de la médiane (163 000 $, ligne pointillée). C'est pourquoi la médiane, insensible aux valeurs extrêmes, sert de référence chiffrée dans l'ensemble de ce rapport.

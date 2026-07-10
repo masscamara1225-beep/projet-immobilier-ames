@@ -1,0 +1,64 @@
+# Modélisation prédictive
+
+L'enquête visuelle a identifié les facteurs du prix. Cette section les met à l'épreuve : si qualité, surface et quartier expliquent vraiment le prix, un modèle nourri de ces variables doit pouvoir le prédire avec précision.
+
+## Protocole de validation
+
+Le jeu de données nettoyé a été scindé aléatoirement en deux parties (graine aléatoire fixée pour la reproductibilité) : 80 % des observations pour l'entraînement, 20 % pour la validation. Les modèles sont évalués sur ces données de validation qu'ils n'ont jamais vues, avec le RMSE (racine de l'erreur quadratique moyenne) comme métrique : il s'interprète directement en dollars, comme l'erreur de prédiction typique du modèle.
+
+Un choix de préparation mérite mention : la variable `Utilities` a été écartée avant modélisation. Elle est quasi constante (1 459 observations sur 1 460 partagent la même valeur) — aucun pouvoir prédictif réel, mais une source d'instabilité technique pour les modèles pénalisés dès qu'un découpage isole la valeur rare d'un seul côté.
+
+## Cinq modèles en compétition
+
+Cinq approches de complexité croissante ont été comparées :
+
+1. **Régression linéaire simple** — six variables choisies sur des critères métier (qualité, surface, quartier, garage, sous-sol, année) : le modèle de référence, interprétable coefficient par coefficient.
+2. **Régression stepwise (AIC)** — part d'un modèle à onze variables et laisse l'algorithme sélectionner la combinaison optimale au sens du critère d'information d'Akaike.
+3. **Ridge** — régression pénalisée qui rétrécit les coefficients pour limiter le surapprentissage, en conservant toutes les variables.
+4. **Lasso** — régression pénalisée qui pousse les coefficients inutiles exactement à zéro, opérant une sélection de variables automatique.
+5. **Random Forest** — 500 arbres de décision agrégés, exploitant l'ensemble des variables et capturant les non-linéarités et interactions que les modèles linéaires ignorent.
+
+## Résultats
+
+```{r tab_modeles}
+modeles <- data.frame(
+  Modele = c("Random Forest", "Régression stepwise (AIC)", "Ridge",
+             "Lasso", "Régression linéaire simple"),
+  RMSE = c("28 324 $", "32 649 $", "33 507 $", "34 584 $", "34 833 $"),
+  Pct = c("17,4 %", "20,0 %", "20,6 %", "21,2 %", "21,4 %")
+)
+kable(modeles, booktabs = TRUE,
+      col.names = c("Modèle", "RMSE (validation)", "En % du prix médian"),
+      caption = "Comparaison des cinq modèles sur les données de validation") %>%
+  kable_styling(latex_options = "hold_position") %>%
+  column_spec(1, width = "6cm")
+```
+
+```{r fig_rmse_modeles, out.width="80%"}
+data.frame(
+  Modele = c("Random Forest", "Stepwise (AIC)", "Ridge", "Lasso", "Régression linéaire"),
+  RMSE = c(28324, 32649, 33507, 34584, 34833)
+) %>%
+  ggplot(aes(x = RMSE, y = reorder(Modele, -RMSE), fill = Modele == "Random Forest")) +
+  geom_col(alpha = 0.9) +
+  scale_fill_manual(values = c("TRUE" = "#E8721C", "FALSE" = "#9FB4CC")) +
+  geom_text(aes(label = dollar(RMSE)), hjust = -0.1, size = 3.2, color = "#18181E") +
+  scale_x_continuous(labels = label_dollar(scale = 1/1000, suffix = "k"),
+                     limits = c(0, 42000)) +
+  labs(x = "RMSE sur données de validation (plus bas = meilleur)", y = NULL) +
+  theme_minimal() + theme(legend.position = "none")
+```
+
+*Figure — Comparaison des cinq modèles : le Random Forest (orange) réduit l'erreur d'environ 6 500 $ par rapport au meilleur modèle linéaire.*
+
+Le Random Forest domine nettement, avec une erreur typique de 28 324 $ — soit 17,4 % du prix médian — et 87,8 % de la variance des prix expliquée sur des données jamais vues. Sa supériorité sur les modèles linéaires (environ 6 500 $ d'écart avec le meilleur d'entre eux) confirme un enseignement de l'analyse exploratoire : le prix ne résulte pas d'une addition de facteurs indépendants, mais de leurs interactions — la surface ne prend sa pleine valeur qu'associée à la qualité, et le même bien ne vaut pas le même prix selon le quartier. C'est précisément ce type d'interactions qu'une forêt aléatoire capture et qu'une régression linéaire ignore.
+
+La hiérarchie de l'importance des variables du Random Forest (figure de l'Acte 4) confirme le verdict de l'enquête : la qualité globale domine le pouvoir prédictif, devant la surface habitable — le standing perçu compte davantage que la taille brute.
+
+## Validation externe : la soumission Kaggle
+
+Pour éprouver le modèle au-delà de nos propres données de validation, des prédictions ont été soumises sur les 1 459 observations du fichier `test.csv` de la compétition Kaggle, dont les prix réels ne sont pas publics. Le score obtenu — 0,12714 (RMSE sur le logarithme des prix, métrique officielle de la compétition, obtenu avec un modèle XGBoost) — constitue une validation entièrement externe et indépendante de la qualité de notre chaîne de traitement, du nettoyage à la modélisation.
+
+## Du modèle à l'outil : le simulateur
+
+Le modèle Random Forest n'est pas resté un objet d'étude : il est intégré à l'application Shiny sous forme de simulateur de prix. L'utilisateur saisit six caractéristiques (surface, qualité, quartier, garage, sous-sol, année de construction) et obtient instantanément une estimation. Un module complémentaire de type k-NN (plus proches voisins) affiche les cinq biens réels du dataset les plus comparables à la demande, chacun accompagné du critère sur lequel il s'en rapproche le plus. Le modèle est pré-entraîné et chargé au démarrage de l'application, conformément au cycle de vie standard d'un modèle en production : on n'entraîne pas à chaque utilisation, on entraîne une fois et on sert les prédictions.
