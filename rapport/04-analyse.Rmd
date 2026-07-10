@@ -77,7 +77,7 @@ train %>%
 
 L'écart de prix médian entre quartiers va du simple au quadruple : moins de 80 000 $ à Briardale, plus de 315 000 $ à Northridge Heights. Les prix ne progressent pas de façon fluide mais par paliers marqués : Ames n'est pas un marché uniforme, c'est une ville découpée en micro-marchés relativement étanches, chacun avec sa réputation, ses écoles et ses barrières financières à l'entrée.
 
-```{r acte2_lollipop, fig.fig.height=4.8, out.width="70%"}
+```{r acte2_lollipop, fig.fig.height=4.8, out.width="65%"}
 train %>%
   group_by(Neighborhood) %>%
   summarise(prix_median = median(SalePrice)) %>%
@@ -100,7 +100,7 @@ Une segmentation statistique (clustering hiérarchique sur cinq dimensions : pri
 
 C'est l'un des résultats les plus spectaculaires de l'enquête : il existe plus de 115 000 $ d'écart entre une maison adjacente à un parc (235 000 $ médian) et une maison en bordure de route artérielle (119 900 $). Le bruit, la pollution et le danger des voies rapides provoquent une décote immédiate de 28 % ; le calme et la verdure d'un espace vert créent une prime de 41 %.
 
-```{r acte3_barres,fig.height=3.6, out.width="75%"}
+```{r acte3_barres,fig.height=3.6, out.width="60%"}
 cond_labels <- c(PosA = "Adjacent parc", PosN = "Proche parc", Norm = "Normale",
                  Feedr = "Route secondaire", Artery = "Route artérielle",
                  RRAn = "Voie ferrée (adj. N-S)", RRAe = "Voie ferrée (adj. E-O)",
@@ -127,7 +127,7 @@ train %>%
 Détail révélateur : la voie ferrée décote bien moins qu'une grande route, car le passage d'un train est intermittent alors que le flux automobile est une nuisance continue. Ce n'est pas la présence d'une infrastructure qui pénalise le prix, mais la fréquence de la gêne qu'elle génère.
 
 Cette prime environnementale s'explique par la rareté : moins de 2 % des maisons de la ville bénéficient d'un accès direct à un espace vert. La nature en ville est une ressource rare et figée — on ne crée pas un grand parc au milieu d'une zone déjà construite — et les acheteurs fortunés entrent en concurrence pour ces biens d'exception, ce qui sanctuarise leur valeur.
-```{r acte3_waffle, out.width="45%"}
+```{r acte3_waffle, out.width="50%"}
 wd <- train %>%
   mutate(groupe = case_when(Condition1 == "Norm" ~ "Normale",
                             Condition1 %in% c("PosA","PosN") ~ "Parc",
@@ -149,7 +149,7 @@ ggplot(grille, aes(x, y, fill = groupe)) +
 
 La matrice de corrélation identifie trois forces majeures : la qualité globale (r = 0,79), la surface habitable (r = 0,71) et le garage (r = 0,64). Mais ces trois piliers sont fortement liés entre eux — les grandes maisons ont presque toujours de grands garages et de bonnes finitions. Un bien doit donc s'analyser comme un équilibre entre facteurs interconnectés, jamais comme une somme de critères indépendants.
 
-```{r acte4_corr, out.width="70%"}
+```{r acte4_corr, out.width="55%"}
 library(corrplot)
 vars_cor <- c("SalePrice","OverallQual","GrLivArea","GarageCars","GarageArea",
               "TotalBsmtSF","X1stFlrSF","FullBath","TotRmsAbvGrd","YearBuilt")

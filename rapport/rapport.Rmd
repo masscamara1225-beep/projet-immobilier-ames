@@ -28,6 +28,7 @@ header-includes:
   - \subsectionfont{\color{marineames}}
   - \usepackage{fancyhdr}
   - \pagestyle{fancy}
+  - \setlength{\headheight}{13pt}
   - \fancyhf{}
   - \fancyhead[L]{\small\color{gray}Marché immobilier d'Ames · Master 1 Groupe 4}
   - \fancyhead[R]{\small\color{gray}UFHB · UFRMI · 2025-2026}
