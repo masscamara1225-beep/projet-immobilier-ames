@@ -43,12 +43,52 @@ train <- read.csv(here("data", "train_clean.csv"), stringsAsFactors = FALSE)
 ```{r child="04-analyse.Rmd"}
 ```
 
+```{r child="05-modelisation.Rmd"}
+```
+
 \newpage
 
-```{r child="05-modelisation.Rmd"}
+```{r child="dashboard.Rmd"}
 ```
 
 \newpage
 
 ```{r child="06-recommandations.Rmd"}
 ```
+
+
+## Principes de design appliqués
+
+L'ensemble des visualisations — dans l'application comme dans ce rapport —
+obéit à une charte visuelle unique, construite sur les principes du cours
+de visualisation de données.
+
+**Hiérarchie visuelle.** Chaque graphique porte un titre formulé comme un
+insight — « La qualité 10 sur 10 vaut 7 fois plus que la 1 sur 10 » plutôt
+que « Prix par qualité » — de sorte que la conclusion se lit avant même le
+graphique. Les indicateurs clés occupent la position haute des pages, les
+axes et légendes sont visuellement secondaires (gris, taille réduite).
+
+**Couleurs sémantiques.** Trois types de palettes sont mobilisés selon la
+nature des variables : palettes *séquentielles* (dégradé clair → orange
+intense) pour les valeurs ordonnées comme la qualité ou le prix ; palettes
+*divergentes* (rouge → blanc → vert) pour les valeurs qui s'écartent d'un
+neutre, comme les corrélations ; palettes *catégorielles* à couleurs
+distinctes pour les variables nominales comme les types de biens. S'y
+ajoutent les conventions culturelles : le rouge signale les décotes et les
+nuisances (route artérielle, chute de 2008), le vert les primes (parc,
+segment Premium), le bleu les références neutres (médiane du marché).
+
+**Répétition et proximité.** La même palette, la même typographie et le même
+gabarit de carte se répètent sur toutes les pages, ce qui rend la lecture
+prévisible. Chaque graphique est immédiatement suivi d'un encadré « Ce que ça
+révèle » qui en livre l'interprétation — l'insight ne quitte jamais le visuel
+qui le fonde.
+
+**Un graphique, un type de données.** Le choix de chaque forme visuelle
+découle de la classification des variables établie en section 2 :
+distributions continues en histogrammes et courbes de densité, catégories
+ordonnées en violons, comparaisons de quartiers en sucettes et boîtes à
+moustaches, proportions en anneaux et gaufres, évolutions temporelles en
+courbes, relations en nuages de points et matrices de corrélation. La forme
+suit la nature de la donnée, jamais l'inverse.

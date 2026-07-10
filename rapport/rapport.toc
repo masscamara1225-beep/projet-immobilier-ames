@@ -23,13 +23,16 @@
 \contentsline {subsection}{\numberline {4.3}Acte 3 --- L'environnement crée-t-il une prime ou une décote ?}{9}{subsection.4.3}%
 \contentsline {subsection}{\numberline {4.4}Acte 4 --- Quels facteurs influencent vraiment le prix ?}{10}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}Acte 5 --- Comment les prix évoluent-ils dans le temps ?}{11}{subsection.4.5}%
-\contentsline {section}{\numberline {5}Modélisation prédictive}{13}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Protocole de validation}{13}{subsection.5.1}%
-\contentsline {subsection}{\numberline {5.2}Cinq modèles en compétition}{13}{subsection.5.2}%
+\contentsline {section}{\numberline {5}Modélisation prédictive}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Protocole de validation}{12}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Cinq modèles en compétition}{12}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Résultats}{13}{subsection.5.3}%
-\contentsline {subsection}{\numberline {5.4}Validation externe : la soumission Kaggle}{14}{subsection.5.4}%
+\contentsline {subsection}{\numberline {5.4}Validation externe : la soumission Kaggle}{13}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}Du modèle à l'outil : le simulateur}{14}{subsection.5.5}%
-\contentsline {section}{\numberline {6}Recommandations stratégiques et conclusion}{15}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Cinq recommandations par profil d'acteur}{15}{subsection.6.1}%
-\contentsline {subsection}{\numberline {6.2}Limites de l'étude}{15}{subsection.6.2}%
-\contentsline {subsection}{\numberline {6.3}Conclusion}{15}{subsection.6.3}%
+\contentsline {section}{\numberline {6}L'application interactive : du récit au produit}{15}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Architecture de l'application}{15}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Un produit de data science, pas seulement un rapport}{16}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Recommandations stratégiques et conclusion}{17}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Cinq recommandations par profil d'acteur}{17}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Limites de l'étude}{17}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Conclusion}{17}{subsection.7.3}%
