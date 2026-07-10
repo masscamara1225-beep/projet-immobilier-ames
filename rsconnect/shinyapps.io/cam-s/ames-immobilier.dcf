@@ -5,6 +5,6 @@ account: cam-s
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 17598121
-bundleId: 12246232
+bundleId: 12246526
 url: https://cam-s.shinyapps.io/ames-immobilier/
 version: 1
