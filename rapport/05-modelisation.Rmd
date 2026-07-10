@@ -34,7 +34,7 @@ kable(modeles, booktabs = TRUE,
   column_spec(1, width = "6cm")
 ```
 
-```{r fig_rmse_modeles, out.width="80%"}
+```{r fig_rmse_modeles, fig.height=2.8, out.width="75%"}
 data.frame(
   Modele = c("Random Forest", "Stepwise (AIC)", "Ridge", "Lasso", "Régression linéaire"),
   RMSE = c(28324, 32649, 33507, 34584, 34833)

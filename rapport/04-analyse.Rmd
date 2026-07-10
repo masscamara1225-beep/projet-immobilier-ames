@@ -2,15 +2,64 @@
 
 L'analyse est structurée comme une enquête. Chaque acte pose une question, y répond par des visualisations, et passe le relais au suivant. Nous présentons ici les résultats clés de chaque acte ; l'intégralité des 24 visualisations est consultable dans l'application interactive.
 
+## Les cinq indicateurs de référence
+
+Cinq KPIs résument le marché et servent de repères tout au long de l'analyse :
+
+| Indicateur | Valeur | Lecture |
+|---|---|---|
+| Prix médian global | 163 000 $ | Référence marché |
+| Quartier le plus cher | Northridge Heights | 315 000 $ médian |
+| Surface habitable médiane | 1 515 ft² | Maison typique |
+| Qualité moyenne | 6,1 / 10 | OverallQual moyen |
+| Amplitude du marché | ×21 | De 34 900 $ à 755 000 $ |
+
+## Portraits de trois individus
+
+Pour rendre l'amplitude du marché concrète, trois transactions réelles du dataset :
+
+| Critère | Maison la moins chère | Maison médiane | Maison la plus chère |
+|---|---|---|---|
+| Prix de vente | 34 900 $ | 163 000 $ | 755 000 $ |
+| Quartier | IDOTRR (voie ferrée) | North Ames | Northridge |
+| Surface habitable | 720 ft² | 1 261 ft² | 4 316 ft² |
+| Qualité globale | 4/10 | 6/10 | 10/10 |
+| Année de construction | 1920 | 1958 | 1994 |
+| Places de garage | Aucune | 2 | 3 |
+| Condition de vente | Anormale (saisie) | Normale | Normale |
+| Année de vente | 2009 (crise) | 2008 | 2007 (avant crise) |
+
+La maison la plus chère vaut 21 fois la moins chère : surface six fois supérieure, qualité maximale contre qualité médiocre, quartier haut de gamme contre bordure de voie ferrée, et vente avant la crise contre saisie en pleine crise. Ce portrait croisé annonce déjà les facteurs que l'analyse confirmera,
+Avant d'ouvrir les cinq actes, posons les repères chiffrés du marché et trois transactions réelles qui incarnent son amplitude.
+
+
 ## Acte 1 — Quoi se vend sur ce marché ?
 
 Le marché d'Ames est dominé à 83 % par des maisons individuelles ; les appartements et maisons mitoyennes restent minoritaires. Cette répartition reflète le modèle d'étalement urbain américain, la ville s'étant développée horizontalement autour de son pôle universitaire.
 
 Le prix des maisons individuelles couvre tous les budgets, tandis que celui des duplex se bloque autour de 200 000 $ : un duplex s'achète dans une logique d'investissement locatif, où le prix est plafonné par la rentabilité des loyers, alors qu'une maison individuelle répond à un achat de vie où les acheteurs paient une prime émotionnelle pour le confort et le standing.
 
+```{r acte1_donut, out.width="50%"}
+bldg_labels <- c("1Fam"="Maison individuelle","2fmCon"="Bi-familiale convertie",
+                 "Duplex"="Duplex","Twnhs"="Townhouse","TwnhsE"="Townhouse (extrémité)")
+bldg_df <- train %>% count(BldgType) %>%
+  mutate(label = recode(BldgType, !!!bldg_labels),
+         pct = n / sum(n),
+         ymax = cumsum(pct), ymin = ymax - pct)
+ggplot(bldg_df, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 2.6, fill = label)) +
+  geom_rect(color = "white") +
+  coord_polar(theta = "y") + xlim(c(1.2, 4)) +
+  scale_fill_manual(values = c("Maison individuelle"="#E8721C","Townhouse (extrémité)"="#1E40AF",
+                               "Duplex"="#7A6F60","Townhouse"="#047857","Bi-familiale convertie"="#B45309")) +
+  annotate("text", x = 1.2, y = 0, label = "83%", size = 9, fontface = "bold", color = "#18181E") +
+  labs(fill = NULL) + theme_void() + theme(legend.position = "right")
+```
+
+*Figure — Composition du marché : 8 maisons vendues sur 10 sont des maisons individuelles.*
+
 La qualité globale (`OverallQual`) crée une progression quasi mathématique : chaque niveau supplémentaire vaut environ 25 000 $ de plus. Et la dispersion s'élargit avec la qualité — sur le segment du luxe, la moindre variation de finition se traduit par des dizaines de milliers de dollars d'écart.
 
-```{r acte1_violon, out.width="80%"}
+```{r acte1_violon, fig.height=3.8, out.width="75%"}
 train %>%
   mutate(OverallQual = factor(OverallQual, levels = 1:10, ordered = TRUE)) %>%
   ggplot(aes(x = OverallQual, y = SalePrice, fill = OverallQual)) +
@@ -28,7 +77,7 @@ train %>%
 
 L'écart de prix médian entre quartiers va du simple au quadruple : moins de 80 000 $ à Briardale, plus de 315 000 $ à Northridge Heights. Les prix ne progressent pas de façon fluide mais par paliers marqués : Ames n'est pas un marché uniforme, c'est une ville découpée en micro-marchés relativement étanches, chacun avec sa réputation, ses écoles et ses barrières financières à l'entrée.
 
-```{r acte2_lollipop, fig.height=6}
+```{r acte2_lollipop, fig.fig.height=4.8, out.width="70%"}
 train %>%
   group_by(Neighborhood) %>%
   summarise(prix_median = median(SalePrice)) %>%
@@ -51,7 +100,7 @@ Une segmentation statistique (clustering hiérarchique sur cinq dimensions : pri
 
 C'est l'un des résultats les plus spectaculaires de l'enquête : il existe plus de 115 000 $ d'écart entre une maison adjacente à un parc (235 000 $ médian) et une maison en bordure de route artérielle (119 900 $). Le bruit, la pollution et le danger des voies rapides provoquent une décote immédiate de 28 % ; le calme et la verdure d'un espace vert créent une prime de 41 %.
 
-```{r acte3_barres}
+```{r acte3_barres,fig.height=3.6, out.width="75%"}
 cond_labels <- c(PosA = "Adjacent parc", PosN = "Proche parc", Norm = "Normale",
                  Feedr = "Route secondaire", Artery = "Route artérielle",
                  RRAn = "Voie ferrée (adj. N-S)", RRAe = "Voie ferrée (adj. E-O)",
@@ -78,13 +127,49 @@ train %>%
 Détail révélateur : la voie ferrée décote bien moins qu'une grande route, car le passage d'un train est intermittent alors que le flux automobile est une nuisance continue. Ce n'est pas la présence d'une infrastructure qui pénalise le prix, mais la fréquence de la gêne qu'elle génère.
 
 Cette prime environnementale s'explique par la rareté : moins de 2 % des maisons de la ville bénéficient d'un accès direct à un espace vert. La nature en ville est une ressource rare et figée — on ne crée pas un grand parc au milieu d'une zone déjà construite — et les acheteurs fortunés entrent en concurrence pour ces biens d'exception, ce qui sanctuarise leur valeur.
+```{r acte3_waffle, out.width="45%"}
+wd <- train %>%
+  mutate(groupe = case_when(Condition1 == "Norm" ~ "Normale",
+                            Condition1 %in% c("PosA","PosN") ~ "Parc",
+                            TRUE ~ "Route/rail")) %>%
+  count(groupe) %>% mutate(pct = round(100 * n / sum(n)))
+grille <- expand.grid(x = 1:10, y = 1:10) %>% mutate(id = row_number())
+seuils <- cumsum(wd$pct)
+grille$groupe <- cut(grille$id, breaks = c(0, seuils), labels = wd$groupe)
+ggplot(grille, aes(x, y, fill = groupe)) +
+  geom_tile(color = "white", linewidth = 1.2) +
+  scale_fill_manual(values = c("Normale"="#1E40AF","Parc"="#047857","Route/rail"="#B91C1C")) +
+  coord_equal() + labs(fill = NULL) + theme_void() +
+  theme(legend.position = "bottom")
+```
+
+*Figure — Sur 100 maisons, à peine 2 bénéficient d'un espace vert : la rareté fonde la prime de 41 %.*
 
 ## Acte 4 — Quels facteurs influencent vraiment le prix ?
 
 La matrice de corrélation identifie trois forces majeures : la qualité globale (r = 0,79), la surface habitable (r = 0,71) et le garage (r = 0,64). Mais ces trois piliers sont fortement liés entre eux — les grandes maisons ont presque toujours de grands garages et de bonnes finitions. Un bien doit donc s'analyser comme un équilibre entre facteurs interconnectés, jamais comme une somme de critères indépendants.
 
+```{r acte4_corr, out.width="70%"}
+library(corrplot)
+vars_cor <- c("SalePrice","OverallQual","GrLivArea","GarageCars","GarageArea",
+              "TotalBsmtSF","X1stFlrSF","FullBath","TotRmsAbvGrd","YearBuilt")
+vars_cor <- intersect(vars_cor, names(train))
+noms_fr <- c(SalePrice="Prix", OverallQual="Qualité", GrLivArea="Surface hab.",
+             GarageCars="Places garage", GarageArea="Surface garage",
+             TotalBsmtSF="Sous-sol", X1stFlrSF="1er étage", FullBath="Salles de bain",
+             TotRmsAbvGrd="Pièces", YearBuilt="Année constr.")
+cm <- cor(train[, vars_cor], use = "complete.obs")
+colnames(cm) <- rownames(cm) <- noms_fr[vars_cor]
+corrplot(cm, method = "circle", type = "upper",
+         col = colorRampPalette(c("#B91C1C","#FFFFFF","#047857"))(200),
+         tl.cex = 0.75, tl.col = "#18181E", diag = FALSE)
+```
+
+*Figure — Matrice de corrélation des variables clés : qualité (r = 0,79), surface (r = 0,71) et garage (r = 0,64) dominent la relation au prix. Les cercles verts foncés hors diagonale révèlent l'interdépendance des facteurs entre eux.*
+
 L'analyse des maisons premium (plus de 300 000 $) révèle une loi stricte : toutes respectent simultanément une surface supérieure à 2 000 ft² et une qualité d'au moins 8/10. Surface et qualité sont deux verrous non substituables — un immense garage ne compensera jamais des finitions médiocres. Aucune maison premium de l'échantillon ne déroge à cette double exigence.
-```{r acte4_importance, out.width="80%"}
+
+```{r acte4_importance, fig.height=3.6, out.width="72%"}
 imp_df <- readRDS(here("data", "imp_df.rds"))
 labels_imp <- c(OverallQual = "Qualité globale", GrLivArea = "Surface habitable",
                 TotalBsmtSF = "Surface sous-sol", GarageCars = "Places de garage",
@@ -114,9 +199,10 @@ imp_df %>%
 
 Le Random Forest de la section 5 tranchera la hiérarchie : la qualité globale domine le pouvoir prédictif, loin devant la surface. Le standing perçu compte davantage que la taille brute.
 
+
 ## Acte 5 — Comment les prix évoluent-ils dans le temps ?
 
-```{r acte5_evolution, out.width="80%"}
+```{r acte5_evolution, fig.height=3.2, out.width="72%"}
 train %>%
   group_by(YrSold) %>%
   summarise(med = median(SalePrice)) %>%
@@ -135,5 +221,20 @@ Le prix médian culmine à 167 000 $ en 2007 puis chute à 155 000 $ en 2010, en
 Les maisons construites après 1991 valent nettement plus que les anciennes : elles intègrent des standards de confort inexistants autrefois — plans ouverts, isolation performante, suites parentales, garages multiples. C'est cette rupture de conception, plus que l'âge des bâtiments, qui explique la prime sur la construction récente.
 
 Enfin, la saisonnalité est d'une régularité spectaculaire : mai, juin et juillet concentrent le pic de ventes chaque année, crise ou pas. Ce rythme n'est pas météorologique mais sociologique : dans une ville universitaire, déménagements et mutations se calent sur le calendrier académique. Un vendeur qui met son bien sur le marché en juin profite d'une concurrence maximale entre acheteurs.
+
+```{r acte5_saison, fig.height=3, out.width="75%"}
+train %>%
+  count(MoSold, YrSold) %>%
+  ggplot(aes(x = MoSold, y = factor(YrSold), fill = n)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = n), color = "#18181E", size = 2.6) +
+  scale_fill_gradient(low = "#FBDFC0", high = "#E8721C") +
+  scale_x_continuous(breaks = 1:12,
+                     labels = c("Jan","Fév","Mar","Avr","Mai","Juin","Juil","Aoû","Sep","Oct","Nov","Déc")) +
+  labs(x = "Mois de vente", y = "Année de vente", fill = "Ventes") +
+  theme_minimal()
+```
+
+*Figure — Saisonnalité des ventes : mai-juillet concentrent le pic chaque année, crise ou pas. La ligne 2010 s'arrête en juillet, date de fin de la collecte.*
 
 La crise a réduit les prix, mais n'a pas changé les règles du jeu : qualité, surface, quartier.

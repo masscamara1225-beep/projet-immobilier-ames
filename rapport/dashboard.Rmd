@@ -1,8 +1,6 @@
 # L'application interactive : du récit au produit
 
-L'enquête n'est pas restituée dans un document figé mais dans une application
-web interactive, développée avec Shiny et déployée publiquement à l'adresse
-suivante : **https://cam-s.shinyapps.io/ames-immobilier**
+L'enquête est restituée dans une application web interactive, développée avec Shiny (shinydashboard) et déployée sur shinyapps.io — accessible par le lien : **https://cam-s.shinyapps.io/ames-immobilier**
 
 ## Architecture de l'application
 
@@ -14,7 +12,7 @@ l'analyse, une page Prédiction et une page Recommandations. À l'intérieur de
 chaque acte, les visualisations sont regroupées en sous-onglets par question
 posée — ainsi la navigation elle-même raconte l'enquête.
 
-```{r fig_dashboard_accueil, out.width="95%"}
+```{r fig_dashboard_accueil, out.width="75%"}
 knitr::include_graphics("images/dashboard_accueil.png")
 ```
 
@@ -36,24 +34,25 @@ Trois mécanismes distinguent cette application d'un document statique :
   caractéristiques et obtient instantanément une estimation, accompagnée des
   cinq biens réels les plus comparables du dataset (module k-NN).
 
-```{r fig_dashboard_simulateur, out.width="95%"}
+```{r fig_dashboard_simulateur, out.width="75%"}
 knitr::include_graphics("images/dashboard_simulateur.png")
 ```
 
 *Figure — Page Prédiction : comparaison des cinq modèles et simulateur de
 prix connecté au Random Forest pré-entraîné.*
 
-## Un produit de data science, pas seulement un rapport
 
-Deux choix d'ingénierie méritent mention. D'abord, le modèle Random Forest
-n'est pas ré-entraîné à chaque visite : il est entraîné une fois, sérialisé,
-puis chargé au démarrage de l'application — le cycle de vie standard d'un
-modèle en production. Ensuite, le déploiement sur shinyapps.io rend
-l'application consultable par quiconque dispose du lien, sans installation
-de R : l'analyse devient un produit accessible, pas un fichier à exécuter.
+## Une charte visuelle unique
 
-Ces capacités — filtres réactifs, simulation en direct, déploiement public —
-sont précisément ce qui a motivé l'évolution de flexdashboard vers Shiny
-présentée en section 1.4 : un document HTML statique ne peut ni recalculer
-un graphique, ni interroger un modèle.
-```
+L'application et le rapport partagent une même charte graphique, construite
+sur les principes du cours de visualisation. Elle repose sur deux couleurs
+d'identité — l'orange (#E8721C) et le bleu marine (#102A43) — déclinées selon
+la nature des variables : dégradés séquentiels pour les valeurs ordonnées
+(qualité, prix), palettes divergentes pour les corrélations, couleurs
+catégorielles distinctes pour les variables nominales comme les types de
+biens. Les conventions culturelles complètent ce code : le rouge signale les
+décotes et les nuisances (route artérielle, chute de 2008), le vert les
+primes (parc, segment Premium), le bleu les références neutres. Enfin, chaque
+graphique porte un titre formulé comme un insight, est suivi d'un encadré
+« Ce que ça révèle », et sa forme visuelle découle de la classification des
+variables établie en section 2 — la forme suit la donnée, jamais l'inverse.

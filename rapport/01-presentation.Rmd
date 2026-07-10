@@ -29,6 +29,5 @@ Cinq objectifs ont structuré notre travail :
 
 L'analyse est construite comme une enquête narrative en cinq actes — Quoi ? Où ? Environnement ? Pourquoi ? Quand ? — restituée dans une application interactive accompagnée de 24 visualisations.
 
-Nous prévoyions initialement de construire le dashboard avec flexdashboard. Au cours du développement, nous avons fait évoluer ce choix vers **Shiny** (`shinydashboard`), qui permet une interactivité réelle — filtres par quartier, comparateur de quartiers, simulateur de prix connecté en direct au modèle Random Forest — et un déploiement public sur shinyapps.io, conforme au cycle de vie d'un produit de data science en production. L'obligation des deux outils de visualisation distincts reste pleinement satisfaite : ggplot2 pour les visualisations statiques, plotly et highcharter pour les visualisations interactives.
-
+Le dashboard est construit avec Shiny (shinydashboard) et déployé publiquement sur shinyapps.io. Il offre une interactivité réelle : filtres par quartier, comparateur de quartiers, simulateur de prix connecté au modèle Random Forest. L'obligation des deux outils de visualisation est satisfaite : ggplot2 pour le statique, plotly et highcharter pour l'interactif.
 L'application est accessible à l'adresse : https://cam-s.shinyapps.io/ames-immobilier
