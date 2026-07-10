@@ -1,0 +1,67 @@
+# Nettoyage des données
+
+## Audit des valeurs manquantes
+
+Avant toute analyse, nous avons compté les trous dans le tableau : 19 variables sur 80 présentent des valeurs manquantes. Les situations sont très inégales — la variable `Electrical` n'a qu'une seule valeur absente sur 1 460, alors que `PoolQC` (qualité de la piscine) est vide dans 99,5 % des cas.
+
+Face à cela, la solution de facilité aurait été d'appliquer la même recette partout : supprimer les lignes incomplètes, ou remplacer chaque trou par une moyenne. Nous ne l'avons pas fait, car ces deux réflexes auraient abîmé les données. Supprimer les lignes incomplètes aurait fait disparaître la quasi-totalité du dataset. Remplir avec des moyennes aurait inventé des piscines à des maisons qui n'en ont pas. Avant de corriger un trou, il faut d'abord comprendre pourquoi il existe.
+
+## Le vide n'est pas toujours un manque
+
+C'est le principe qui a guidé tout notre nettoyage. La documentation officielle du dataset est claire : pour 11 variables, une case vide ne veut pas dire « information perdue », mais « cet équipement n'existe pas dans cette maison ». Une case vide sur la qualité de la piscine signifie simplement : pas de piscine. Même logique pour la clôture, la cheminée, l'allée ou le garage.
+
+Autrement dit, le vide est ici une réponse en soi. Nous avons donc remplacé ces cases vides par une catégorie explicite, « Absent », au lieu de deviner une valeur. Ce choix n'est pas un détail : le modèle de prédiction de la section 5 apprend à partir de ces données. Lui fournir des valeurs inventées reviendrait à lui apprendre des choses fausses — et ses prédictions de prix en auraient hérité.
+
+```{r tab_audit}
+audit <- data.frame(
+  Variable = c("PoolQC, MiscFeature, Alley, Fence, FireplaceQu",
+               "GarageType / Finish / Qual / Cond", "GarageYrBlt",
+               "BsmtQual / Cond / Exposure / FinType",
+               "LotFrontage", "MasVnrType / Area", "Electrical"),
+  NAs = c("47 % à 99,5 %", "81 (5,5 %)", "81 (5,5 %)", "37-38 (2,5 %)",
+          "259 (17,7 %)", "8 (0,5 %)", "1 (0,07 %)"),
+  Strategie = c("Catégorie « Absent »", "Catégorie « Absent »",
+                "Année de construction", "Catégorie « Absent »",
+                "Médiane du quartier", "« Absent » / 0", "Mode (SBrkr)"),
+  Justification = c("NA = absence de l'équipement", "Maisons sans garage",
+                    "Garage construit avec la maison", "Maisons sans sous-sol",
+                    "Vraie donnée manquante", "Pas de parement maçonné",
+                    "Cas isolé, impact négligeable")
+)
+kable(audit, booktabs = TRUE,
+      col.names = c("Variable", "NA détectés", "Stratégie", "Justification")) %>%
+  kable_styling(latex_options = "hold_position", font_size = 9) %>%
+  column_spec(1, width = "4.6cm") %>%
+  column_spec(2, width = "2.2cm") %>%
+  column_spec(3, width = "3.4cm") %>%
+  column_spec(4, width = "4.2cm")
+```
+
+## L'exception LotFrontage : une vraie imputation
+
+`LotFrontage` (largeur de façade du terrain) suit une logique inverse : la façade existe bel et bien, mais n'a pas été mesurée pour 259 biens. C'est ici une véritable donnée manquante, qui justifie une imputation. Nous avons choisi la **médiane par quartier** plutôt que la médiane globale : deux maisons voisines ont des terrains comparables, issus des mêmes plans d'urbanisme. Cette imputation contextuelle préserve la structure géographique des données.
+
+## Conversions de types
+
+Cinq variables faussement numériques ont été converties en facteurs, conformément à la classification de la section 2 : `MSSubClass` (codes arbitraires), `OverallQual` et `OverallCond` (échelles ordinales 1-10, converties en facteurs ordonnés), `YrSold` et `MoSold` (catégories temporelles). Les 38 variables textuelles restantes ont été converties en facteurs pour la modélisation.
+
+## Deux variables créées pour l'enquête
+
+Deux variables synthétiques, absentes du dataset brut, ont été construites :
+
+- **ScoreEnv** (score environnemental) : recode la variable `Condition1` (9 modalités textuelles peu exploitables) en échelle numérique ordonnée, de −2 (route artérielle) à +2 (adjacent à un parc). Cette variable rend possible toute l'analyse environnementale de l'Acte 3.
+- **Era** (ère de construction) : regroupe les 112 années de construction distinctes en 5 périodes historiques interprétables (Pré-1920, 1920-1945, 1946-1970, 1971-1990, 1991-2010). Cette variable structure l'analyse temporelle de l'Acte 5.
+
+## Retrait de deux valeurs aberrantes
+
+Deux transactions affichent plus de 4 000 ft² habitables pour un prix inférieur à 300 000 $ — une anomalie documentée publiquement par la communauté ayant étudié ce dataset (ventes atypiques ou erreurs de saisie). Ces deux observations ont été retirées avant la modélisation, ce qui a amélioré la cohérence des prédictions. Le jeu de données final compte 1 458 observations et 83 variables (80 d'origine + 3 dérivées), sans aucune valeur manquante.
+
+```{r verif-nettoyage}
+verif <- data.frame(
+  Indicateur = c("Observations", "Variables", "Valeurs manquantes"),
+  Valeur = c(nrow(train), ncol(train), sum(is.na(train)))
+)
+knitr::kable(verif, caption = "Vérification du jeu de données nettoyé, calculée en direct sur train_clean.csv")
+```
+
+Ce tableau est calculé en direct sur le fichier `train_clean.csv` au moment de la génération du rapport, garantissant la cohérence entre le rapport et les données réellement utilisées.

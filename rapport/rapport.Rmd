@@ -1,0 +1,54 @@
+---
+title: "Analyse du Marché Immobilier d'Ames, Iowa"
+subtitle: "Rapport de projet · Visualisation de Données · Data Science / IA UFRMI"
+author: "CAMARA Massaram & LOGBO Axelle · Groupe 4"
+date: "Juillet 2026"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    latex_engine: xelatex
+lang: fr
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE,
+                      fig.align = "center", out.width = "85%")
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(here)
+library(kableExtra)
+train <- read.csv(here("data", "train_clean.csv"), stringsAsFactors = FALSE)
+```
+
+\newpage
+
+```{r child="01-presentation.Rmd"}
+```
+
+\newpage
+
+```{r child="02-donnees.Rmd"}
+```
+
+\newpage
+
+```{r child="03-nettoyage.Rmd"}
+```
+
+\newpage
+
+```{r child="04-analyse.Rmd"}
+```
+
+\newpage
+
+```{r child="05-modelisation.Rmd"}
+```
+
+\newpage
+
+```{r child="06-recommandations.Rmd"}
+```

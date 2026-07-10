@@ -1,0 +1,34 @@
+# Présentation du projet
+
+## Contexte
+
+Ames est une ville universitaire de l'Iowa d'environ 65 000 habitants, structurée autour de l'Iowa State University (fondée en 1858). Son marché immobilier, organisé en 25 quartiers aux profils très contrastés, constitue un terrain d'étude idéal pour comprendre la formation des prix.
+
+Notre analyse porte sur 1 460 transactions réalisées entre 2006 et 2010 (dataset House Prices, Kaggle). Cette période est marquée par la crise des subprimes, la plus grande crise immobilière depuis 1929 — et cette crise est lisible dans nos données : le prix médian passe de 167 000 $ en 2007 à 155 000 $ en 2010, soit une baisse de 7,2 % en trois ans.
+
+## Problématique
+
+Sur ce marché, une maison peut valoir 21 fois plus qu'une autre (de 34 900 $ à 755 000 $). 
+Quels sont les véritables déterminants du prix de vente ? 
+La qualité prime-t-elle sur la superficie ? 
+Le quartier efface-t-il les défauts du bien ? 
+L'environnement immédiat — parc, route artérielle — crée-t-il une prime ou une décote mesurable ? 
+La crise de 2008 a-t-elle reconfiguré les règles du marché ?
+
+## Objectifs
+
+Cinq objectifs ont structuré notre travail :
+
+1. **Explorer** — conduire une analyse exploratoire complète du marché ;
+2. **Identifier** — quantifier les facteurs influençant le prix via des visualisations adaptées à chaque type de données ;
+3. **Analyser l'environnement** — mesurer l'impact des conditions de proximité ;
+4. **Modéliser** — valider les résultats par régression linéaire, Random Forest et une soumission Kaggle ;
+5. **Recommander** — formuler cinq recommandations stratégiques par profil d'acteur du marché.
+
+## Démarche et choix techniques
+
+L'analyse est construite comme une enquête narrative en cinq actes — Quoi ? Où ? Environnement ? Pourquoi ? Quand ? — restituée dans une application interactive accompagnée de 24 visualisations.
+
+Nous prévoyions initialement de construire le dashboard avec flexdashboard. Au cours du développement, nous avons fait évoluer ce choix vers **Shiny** (`shinydashboard`), qui permet une interactivité réelle — filtres par quartier, comparateur de quartiers, simulateur de prix connecté en direct au modèle Random Forest — et un déploiement public sur shinyapps.io, conforme au cycle de vie d'un produit de data science en production. L'obligation des deux outils de visualisation distincts reste pleinement satisfaite : ggplot2 pour les visualisations statiques, plotly et highcharter pour les visualisations interactives.
+
+L'application est accessible à l'adresse : https://cam-s.shinyapps.io/ames-immobilier

@@ -1,0 +1,29 @@
+# Recommandations stratégiques et conclusion
+
+L'enquête a livré ses conclusions. Reste à les rendre actionnables : cinq recommandations, une par profil d'acteur du marché, chacune ancrée dans un résultat chiffré de l'analyse.
+
+## Cinq recommandations par profil d'acteur
+
+**R1 — Pour l'acheteur individuel : cibler les quartiers sous-évalués.** Timberland (228 950 $) et Somerset (226 000 $) présentent des profils multicritères quasi identiques à Northridge Heights (315 000 $) — qualité, surface, récence — pour des prix inférieurs de 30 %. Une maison de qualité 7 ou plus, dépassant 1 500 ft² dans ces quartiers, offre le meilleur rapport qualité-prix du marché. *Fondement : classement des quartiers et profils radar par segment (Acte 2).*
+
+**R2 — Pour le vendeur : rénover la cuisine et l'extérieur, vendre en mai-juin.** La qualité de la cuisine et la qualité extérieure figurent dans le top 5 des variables les plus prédictives du Random Forest : passer d'une finition moyenne à bonne peut générer 15 000 à 20 000 $ de plus-value. Et le calendrier compte : mai et juin concentrent le pic annuel de ventes, avec une concurrence maximale entre acheteurs. *Fondement : importance des variables (Acte 4) et saisonnalité (Acte 5).*
+
+**R3 — Pour l'investisseur : acheter en condition de vente anormale.** Les ventes anormales (saisies notamment) affichent une décote d'environ 18 % par rapport aux ventes classiques. Ciblées sur des biens de qualité 6 ou plus dans les quartiers médians (Mitchell, Gilbert, Northwest Ames), ces opportunités constituent un arbitrage systématique. *Fondement : analyse des conditions de vente et évolution temporelle (Acte 5).*
+
+**R4 — Pour le promoteur immobilier : construire en zone résidentielle avec espaces verts.** Une maison adjacente à un parc se vend 235 000 $ en médiane, soit une prime de 41 % par rapport à la référence du marché — et 115 000 $ de plus qu'en bordure de route artérielle. Un programme résidentiel intégrant un parc dès la conception se positionne d'emblée sur le segment 200 000-250 000 $. *Fondement : analyse environnementale complète (Acte 3).*
+
+**R5 — Pour l'urbaniste et la collectivité : les espaces verts créent une valeur mesurable.** L'écart de 115 000 $ par maison entre proximité d'un parc et bordure d'artère, appliqué à un quartier de 100 maisons, représente 5 à 10 millions de dollars de valorisation du patrimoine immobilier local. La création d'espaces verts n'est pas une dépense d'agrément : c'est un investissement dont le retour est directement lisible dans les prix de vente. *Fondement : prime environnementale et rareté des espaces verts (Acte 3).*
+
+## Limites de l'étude
+
+Trois limites bornent la portée de ces conclusions. D'abord, la fenêtre temporelle : les données couvrent 2006-2010, et aucune extrapolation directe vers la valeur actuelle du marché n'est possible sans données récentes. Ensuite, 2010 est une année partielle — le fichier s'arrête en juillet — ce qui impose la prudence sur les statistiques de cette année-là, dont la baisse apparente de volume est un artefact de collecte. Enfin, les résultats décrivent le marché d'une ville universitaire américaine moyenne : la hiérarchie des facteurs (qualité, surface, quartier) est vraisemblablement générale, mais leurs poids exacts ne se transposent pas tels quels à d'autres contextes.
+
+La perspective naturelle de ce travail serait d'actualiser l'analyse avec des transactions récentes, et d'enrichir le modèle de variables macro-économiques locales (taux d'intérêt, emploi universitaire).
+
+## Conclusion
+
+Au terme de cette enquête, la question initiale — qu'est-ce qui fait le prix d'une maison ? — a trouvé une réponse étayée à chaque étape : par l'exploration visuelle des 24 graphiques, par la segmentation statistique des quartiers, et par la validation prédictive de cinq modèles concurrents.
+
+La qualité globale domine tout : c'est la variable la plus corrélée au prix (r = 0,79) et la plus prédictive du Random Forest. La surface vient ensuite, mais ne vaut pleinement qu'associée à la qualité — aucune maison premium du dataset ne déroge à la double exigence qualité 8+ et surface 2 000+ ft². Le quartier, enfin, agit comme un multiplicateur : le même bien ne vaut pas le même prix selon l'endroit où il se trouve, dans un rapport allant jusqu'à 3,9 entre les extrêmes de la ville. Autour de ce trio, l'environnement immédiat module la valeur — prime de 41 % pour un parc, décote de 28 % pour une artère — et la crise de 2008 a démontré que si les prix peuvent chuter, la hiérarchie des facteurs, elle, résiste.
+
+1 460 transactions. 80 variables. 5 actes. La réponse tient en trois mots : qualité, surface, quartier. Mais comprendre comment ces trois facteurs interagissent — c'est ça, la valeur ajoutée de l'analyse de données.
