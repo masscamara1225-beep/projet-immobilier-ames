@@ -57,7 +57,11 @@ La hiérarchie de l'importance des variables du Random Forest (figure de l'Acte 
 
 ## Validation externe : la soumission Kaggle
 
-Pour éprouver le modèle au-delà de nos propres données de validation, des prédictions ont été soumises sur les 1 459 observations du fichier `test.csv` de la compétition Kaggle, dont les prix réels ne sont pas publics. Le score obtenu — 0,12714 (RMSE sur le logarithme des prix, métrique officielle de la compétition, obtenu avec un modèle XGBoost) — constitue une validation entièrement externe et indépendante de la qualité de notre chaîne de traitement, du nettoyage à la modélisation.
+Pour éprouver notre chaîne de traitement au-delà de nos propres données de validation, des prédictions ont été soumises sur les 1 459 observations du fichier `test.csv` de la compétition Kaggle, dont les prix réels ne sont pas publics.
+
+Un sixième modèle a été mobilisé pour cette soumission : XGBoost, un algorithme de gradient boosting réputé pour ses performances en compétition. Ce choix reflète une distinction classique en data science entre deux objectifs : le Random Forest reste notre modèle de référence — interprétable, analysé en détail et intégré au simulateur de l'application — tandis que XGBoost joue le rôle de modèle de compétition, optimisé pour la seule performance prédictive sur la métrique officielle.
+
+Le score obtenu — 0,12714 (RMSE sur le logarithme des prix, métrique officielle de la compétition) — constitue une validation entièrement externe et indépendante de la qualité de l'ensemble de notre chaîne, du nettoyage à la modélisation.
 
 ## Du modèle à l'outil : le simulateur
 

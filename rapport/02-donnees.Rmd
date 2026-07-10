@@ -22,7 +22,7 @@ Cinq KPIs résument le marché et servent de repères tout au long de l'analyse 
 
 Pour rendre l'amplitude du marché concrète, trois transactions réelles du dataset :
 
-| Critère | Maison la plus moins chère | Maison médiane | Maison la plus chère |
+| Critère | Maison la moins chère | Maison médiane | Maison la plus chère |
 |---|---|---|---|
 | Prix de vente | 34 900 $ | 163 000 $ | 755 000 $ |
 | Quartier | IDOTRR (voie ferrée) | North Ames | Northridge |
