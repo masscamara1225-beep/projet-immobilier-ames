@@ -429,11 +429,11 @@ ui <- dashboardPage(
                                             type = "Diagramme en barres empilées", role = "Composition typologique des quartiers",
                                             output_ui = withSpinner(plotlyOutput("stacked_composition", height = 480), type = 6),
                                             revele = tagList(
-                                              tags$p("Certains quartiers récents contiennent la quasi-totalité de maisons individuelles ou de maisons mitoyennes, tandis que les vieux quartiers historiques comme Old Town affichent un mélange varié de formes architecturales."),
-                                              tags$p("Cette différence illustre l'évolution des règles d'urbanisme dans le temps."),
-                                              tags$p("Les quartiers modernes ont été dessinés par des promoteurs uniques qui ont standardisé les constructions sur d'immenses parcelles pour maximiser leurs économies d'échelle."),
-                                              tags$p("Les quartiers anciens ont grandi morceau par morceau à une époque où le zonage n'était pas rigide, permettant la cohabitation naturelle entre logements ouvriers, commerces et maisons de famille."),
-                                              tags$p("Les quartiers récents et standardisés offrent donc moins de risque de mauvaise surprise sur la valeur, tandis que les quartiers historiques, plus variés, rendent chaque estimation plus incertaine.")
+                                              tags$p("Northpark Villa, tout à gauche, est composé exclusivement de townhouses (Twnhs et TwnhsE, maisons mitoyennes en rangée) : un micro-quartier dessiné autour d'un seul produit immobilier."),
+                                              tags$p("Résultat contre-intuitif : les quartiers les plus mixtes ne sont pas les plus anciens mais les plus récents — Somerset et Northridge Heights combinent 1Fam (maisons individuelles) et townhouses, leurs promoteurs ayant planifié plusieurs gammes de biens pour élargir la clientèle."),
+                                              tags$p("À l'inverse, les quartiers pavillonnaires des années 1960-1990, comme Northridge ou Gilbert, sont composés quasi exclusivement de 1Fam : c'est l'ère du zonage résidentiel strict."),
+                                              tags$p("Old Town garde la trace d'une autre époque : environ une vente sur huit y concerne une 2fmCon (bi-familiale convertie, grande maison divisée en deux logements), héritage du tissu urbain d'avant le zonage."),
+                                              tags$p("La typologie d'un quartier renseigne ainsi sur son époque de construction et sur le degré de standardisation de son offre.")
                                             )
                                    )),
                           
@@ -502,11 +502,11 @@ ui <- dashboardPage(
                                             type = "Diagramme en barres", role = "Prix médian selon la condition environnementale",
                                             output_ui = withSpinner(highchartOutput("barres_condition", height = 420), type = 6),
                                             revele = tagList(
-                                              tags$p("Il existe un écart de plus de 115 000 dollars entre une maison construite au calme, près d'un parc, et une maison en bordure d'une route artérielle majeure."),
-                                              tags$p("Ce phénomène illustre l'impact des externalités urbaines sur la valeur d'un bien : le bruit, les gaz d'échappement et le danger visuel des voies rapides provoquent une décote immédiate."),
-                                              tags$p("À l'inverse, la verdure, la qualité de l'air et le calme d'un espace vert apportent un confort de vie que les acheteurs sont prêts à surpayer."),
-                                              tags$p("Un détail marquant : la proximité d'une voie ferrée décote bien moins fortement qu'une grande route, car le passage d'un train reste intermittent alors que le flux automobile est une nuisance continue."),
-                                              tags$p("Cette hiérarchie des nuisances montre que ce n'est pas la présence d'une infrastructure en soi qui pénalise le prix, mais la fréquence et l'intensité de la gêne qu'elle génère au quotidien.")
+                                              tags$p("Sur ce graphique, construit sur la variable Condition1, l'écart est déjà net : Adjacent parc (PosA) à 212 500 $ contre Route artérielle (Artery) à 119 550 $, autour de la référence du marché à 163 000 $ (pointillé)."),
+                                              tags$p("Le chiffre phare de l'enquête va plus loin : le dataset décrit chaque bien par deux variables de condition (Condition1 et Condition2). En comptant comme adjacente à un parc toute maison signalée par l'une ou l'autre, 9 maisons sont concernées, pour une médiane de 235 000 $ — soit une prime de 41 % sur les ventes normales, quand l'artère inflige une décote de 28 %."),
+                                              tags$p("Un œil attentif remarquera la barre la plus haute : Proche voie ferrée N-S (RRNn). Elle ne repose que sur 5 ventes, dont deux maisons neuves de haute qualité à Somerset, quartier premium du nord : ce n'est pas le train qui valorise ces biens, c'est leur quartier."),
+                                              tags$p("Sur les catégories robustes, la voie ferrée décote bien moins qu'une grande route : le passage d'un train est intermittent, le flux automobile est une nuisance continue."),
+                                              tags$p("Ce n'est donc pas la présence d'une infrastructure qui pénalise le prix, mais la fréquence et l'intensité de la gêne qu'elle génère au quotidien.")
                                             )
                                    ),
                                    viz_card(titre = "À surface égale, la proximité d'un parc coûte plus cher",
@@ -851,9 +851,13 @@ server <- function(input, output, session) {
   })
   
   output$stacked_composition <- renderPlotly({
-    top15 <- train %>% count(Neighborhood, sort = TRUE) %>% head(15) %>% pull(Neighborhood)
-    comp_df <- train %>% filter(Neighborhood %in% top15) %>% mutate(nom_complet = recode(Neighborhood, !!!noms_quartiers)) %>%
+    quartiers_aff <- union(train %>% count(Neighborhood, sort = TRUE) %>% head(14) %>% pull(Neighborhood), "NPkVill")
+    comp_df <- train %>% filter(Neighborhood %in% quartiers_aff) %>%
+      mutate(nom_complet = recode(Neighborhood, !!!noms_quartiers)) %>%
       count(nom_complet, BldgType_label) %>% group_by(nom_complet) %>% mutate(pct = n / sum(n)) %>% ungroup()
+    part_indiv <- comp_df %>% filter(BldgType_label == "Maison individuelle") %>% arrange(pct)
+    ordre <- c(setdiff(unique(comp_df$nom_complet), part_indiv$nom_complet), part_indiv$nom_complet)
+    comp_df <- comp_df %>% mutate(nom_complet = factor(nom_complet, levels = ordre))
     plot_ly(comp_df, x = ~nom_complet, y = ~pct, color = ~BldgType_label, type = "bar", colors = palette_bldgtype) %>%
       layout(barmode = "stack", yaxis = list(title = "Proportion", tickformat = ".0%"),
              xaxis = list(title = "Quartier", tickangle = -35),
@@ -861,8 +865,16 @@ server <- function(input, output, session) {
   })
   
   output$radar_segments <- renderPlot({
-    normalise <- function(x) (x - min(x)) / (max(x) - min(x))
-    rv <- as.data.frame(lapply(representants_segments %>% select(prix, surface, qualite, garage, recence), normalise))
+    med_q <- train %>% group_by(Neighborhood) %>%
+      summarise(prix=median(SalePrice), surface=median(GrLivArea), qualite=median(as.numeric(OverallQual)),
+                garage=median(GarageCars), recence=median(YearBuilt))
+    rv <- representants_segments %>%
+      transmute(prix    = (prix    - min(med_q$prix))    / (max(med_q$prix)    - min(med_q$prix)),
+                surface = (surface - min(med_q$surface)) / (max(med_q$surface) - min(med_q$surface)),
+                qualite = (qualite - min(med_q$qualite)) / (max(med_q$qualite) - min(med_q$qualite)),
+                garage  = (garage  - min(med_q$garage))  / (max(med_q$garage)  - min(med_q$garage)),
+                recence = (recence - min(med_q$recence)) / (max(med_q$recence) - min(med_q$recence))) %>%
+      as.data.frame()
     rownames(rv) <- representants_segments$label_segment
     rv <- rv[c("Premium","Moyen","Abordable"), , drop = FALSE]
     rd <- rbind(rep(1,5), rep(0,5), rv)
@@ -882,8 +894,12 @@ server <- function(input, output, session) {
   })
   
   output$radar_comparaison <- renderPlot({
-    bornes <- train %>% summarise(prix_min=min(SalePrice), prix_max=max(SalePrice), surf_min=min(GrLivArea), surf_max=max(GrLivArea),
-                                  qual_min=1, qual_max=10, gar_min=0, gar_max=max(GarageCars), rec_min=min(YearBuilt), rec_max=max(YearBuilt))
+    med_q <- train %>% group_by(Neighborhood) %>%
+      summarise(prix=median(SalePrice), surface=median(GrLivArea), qualite=median(as.numeric(OverallQual)),
+                garage=median(GarageCars), recence=median(YearBuilt))
+    bornes <- med_q %>% summarise(prix_min=min(prix), prix_max=max(prix), surf_min=min(surface), surf_max=max(surface),
+                                  qual_min=min(qualite), qual_max=max(qualite), gar_min=min(garage), gar_max=max(garage),
+                                  rec_min=min(recence), rec_max=max(recence))
     deux <- train %>% filter(Neighborhood %in% c(input$quartier_a, input$quartier_b)) %>% group_by(Neighborhood) %>%
       summarise(prix=median(SalePrice), surface=median(GrLivArea), qualite=median(as.numeric(OverallQual)), garage=median(GarageCars), recence=median(YearBuilt))
     rv <- deux %>% mutate(
