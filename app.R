@@ -275,7 +275,7 @@ ui <- dashboardPage(
                                    ),
                                    fluidRow(
                                      column(4, kpi_card("Observations", "1 460", hint="Transactions d'origine", accent=COULEURS$bleu)),
-                                     column(4, kpi_card("Variables", "83", hint="80 d'origine, 3 créées", accent=COULEURS$vert)),
+                                     column(4, kpi_card("Variables", "83", hint="81 d'origine, 2 créées", accent=COULEURS$vert)),
                                      column(4, kpi_card("Valeurs manquantes", "0", hint="Après traitement complet", accent=COULEURS$orange))
                                    ),
                                    card(title = "Le vide n'est pas toujours un manque",

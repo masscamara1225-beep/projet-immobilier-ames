@@ -1,3 +1,4 @@
+
 # Nettoyage des données
 
 ## Audit des valeurs manquantes
@@ -54,7 +55,7 @@ Deux variables synthétiques, absentes du dataset brut, ont été construites :
 
 ## Retrait de deux valeurs aberrantes
 
-Deux transactions affichent plus de 4 000 ft² habitables pour un prix inférieur à 300 000 $ — une anomalie documentée publiquement par la communauté ayant étudié ce dataset (ventes atypiques ou erreurs de saisie). Ces deux observations ont été retirées avant la modélisation, ce qui a amélioré la cohérence des prédictions. Le jeu de données final compte 1 458 observations et 83 variables (80 d'origine + 3 dérivées), sans aucune valeur manquante.
+Deux transactions affichent plus de 4 000 ft² habitables pour un prix inférieur à 300 000 $ — une anomalie documentée publiquement par la communauté ayant étudié ce dataset (ventes atypiques ou erreurs de saisie). Ces deux observations ont été écartées au moment de la modélisation (section 5), ce qui a amélioré la cohérence des prédictions. Le fichier `train_clean.csv`, socle de toutes les visualisations, conserve quant à lui l'intégralité des 1 460 observations, décrites par 83 variables (81 d'origine + 2 dérivées), sans aucune valeur manquante — comme le vérifie le tableau ci-dessous.
 
 ```{r verif-nettoyage}
 verif <- data.frame(

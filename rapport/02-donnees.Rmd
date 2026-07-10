@@ -2,38 +2,12 @@
 
 ## Le jeu de données
 
-Le dataset *Ames Housing*, publié par *Dean De Cock en 2011*, est une référence de la data science au même titre que Titanic ou Iris. Le fichier principal, `train.csv`, contient 1 460 observations décrites par 80 variables explicatives, plus la variable cible `SalePrice` (prix de vente en dollars). Un second fichier, `test.csv` (1 459 observations sans prix), sert de support à la validation externe sur Kaggle.
+Le dataset *Ames Housing*, publié par *Dean De Cock en 2011*, est une référence de la data science au même titre que Titanic ou Iris. 
+La compétition fournit trois fichiers. Le fichier principal, train.csv, contient 1 460 observations décrites par 80 variables explicatives, 
+plus la variable cible SalePrice (prix de vente en dollars) : c'est lui qui sert à l'entraînement des modèles. Le fichier test.csv (1 459 observations sans prix) 
+sert à produire les prédictions de la validation externe. Enfin, sample_submission.csv fournit le format attendu du fichier de soumission à Kaggle.
 
 Chaque observation est une transaction immobilière réalisée à Ames entre 2006 et 2010. Les 80 variables couvrent toutes les dimensions d'un bien : localisation (quartier, zonage), dimensions (surfaces habitable, sous-sol, garage, terrain), qualité (notes globales et par équipement), équipements (cheminée, piscine, clôture), et circonstances de la vente (année, mois, condition de vente).
-
-## Les cinq indicateurs de référence
-
-Cinq KPIs résument le marché et servent de repères tout au long de l'analyse :
-
-| Indicateur | Valeur | Lecture |
-|---|---|---|
-| Prix médian global | 163 000 $ | Référence marché |
-| Quartier le plus cher | Northridge Heights | 315 000 $ médian |
-| Surface habitable médiane | 1 515 ft² | Maison typique |
-| Qualité moyenne | 6,1 / 10 | OverallQual moyen |
-| Amplitude du marché | ×21 | De 34 900 $ à 755 000 $ |
-
-## Portraits de trois individus
-
-Pour rendre l'amplitude du marché concrète, trois transactions réelles du dataset :
-
-| Critère | Maison la plus moins chère | Maison médiane | Maison la plus chère |
-|---|---|---|---|
-| Prix de vente | 34 900 $ | 163 000 $ | 755 000 $ |
-| Quartier | IDOTRR (voie ferrée) | North Ames | Northridge |
-| Surface habitable | 720 ft² | 1 261 ft² | 4 316 ft² |
-| Qualité globale | 4/10 | 6/10 | 10/10 |
-| Année de construction | 1920 | 1958 | 1994 |
-| Places de garage | Aucune | 2 | 3 |
-| Condition de vente | Anormale (saisie) | Normale | Normale |
-| Année de vente | 2009 (crise) | 2008 | 2007 (avant crise) |
-
-La maison la plus chère vaut 21 fois la moins chère : surface six fois supérieure, qualité maximale contre qualité médiocre, quartier haut de gamme contre bordure de voie ferrée, et vente avant la crise contre saisie en pleine crise. Ce portrait croisé annonce déjà les facteurs que l'analyse confirmera.
 
 ## Classification des variables
 
@@ -65,7 +39,7 @@ Le dernier groupe mérite attention : des variables comme `MSSubClass` (codes de
 
 ## Distribution de la variable cible
 
-```{r fig_distribution_cible}
+```{r fig_distribution_cible, fig.height=2.6, out.width="70%"}
 ggplot(train, aes(x = SalePrice)) +
   geom_histogram(bins = 50, fill = "#E8721C", color = "white") +
   geom_vline(xintercept = median(train$SalePrice),

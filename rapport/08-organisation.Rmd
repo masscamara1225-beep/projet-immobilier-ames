@@ -1,0 +1,36 @@
+# Organisation et collaboration
+
+## Répartition du travail
+
+Le projet a été conduit en binôme, avec une répartition par domaines et une
+révision croisée systématique :
+
+| Membre | Responsabilités principales |
+|---|---|
+| CAMARA Massaram | Visualisations des Actes 1 et 2 · application Shiny (architecture, design, déploiement) · rédaction et mise en forme du rapport |
+| LOGBO Axelle | Nettoyage des données · visualisations des Actes 3 à 5 · modélisation (cinq modèles, XGBoost, soumission Kaggle) |
+
+Le fil narratif, les recommandations et la relecture finale ont été menés en commun. Avant le lancement, un cahier des charges interne d'une trentaine de pages a été rédigé : classification des variables, plan des visualisations, principes de design, planning jour par jour sur deux semaines. Ce document a servi de contrat d'équipe tout au long du sprint.
+
+## Versionnement avec Git et GitHub
+
+L'ensemble du projet est versionné sur GitHub. Chaque domaine de travail a
+fait l'objet d'une branche dédiée , fusionnée dans `main`
+après revue par l'autre membre. Les messages de commit suivent une convention par préfixes qui rend l'historique lisible comme un journal de bord du projet.
+
+Ce fonctionnement a eu un bénéfice concret : les deux membres ont travaillé
+en parallèle pendant deux semaines, sur les mêmes fichiers de données, sans jamais se bloquer mutuellement ni perdre une version.
+
+# Références {-}
+
+- De Cock, D. (2011). *Ames, Iowa: Alternative to the Boston Housing Data as
+  an End of Semester Regression Project*. Journal of Statistics Education, 19(3).
+- Kaggle. *House Prices — Advanced Regression Techniques*.
+  https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques
+- Documentation officielle du dataset Ames Housing (codebook des 80 variables).
+- R Core Team (2025). *R: A Language and Environment for Statistical Computing*.
+  Packages mobilisés : ggplot2, dplyr, plotly, highcharter, leaflet, visNetwork,
+  ggridges, GGally, corrplot, fmsb, randomForest, xgboost, shiny, shinydashboard,
+  kableExtra.
+- Application déployée : https://cam-s.shinyapps.io/ames-immobilier ·
+  Code source : https://github.com/masscamara1225-beep/projet-immobilier-ames

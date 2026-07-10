@@ -1,0 +1,94 @@
+# Annexe — Catalogue des visualisations
+
+Les consignes du projet exigeaient un minimum de 15 visualisations
+différentes, dont sept formes obligatoires : histogramme, diagramme en
+barres, diagramme circulaire, carte géographique, courbe temporelle,
+heatmap et dashboard interactif. Notre cahier des charges interne, rédigé
+en début de projet, avait relevé cette barre à 24 visualisations planifiées.
+L'application en livre finalement 25 analytiques — toutes les formes
+obligatoires y figurent, dont deux heatmaps (corrélations et saisonnalité)
+et une carte géographique interactive — auxquelles s'ajoutent 3 graphiques
+d'aperçu sur la page d'accueil.
+Deux évolutions par rapport au plan initial sont assumées : la
+heatmap des valeurs manquantes a été remplacée par un tableau d'audit
+détaillé accompagné du jeu de données téléchargeable (plus exploitable
+qu'une image), et le nuage de points avec droite de régression a été
+absorbé par le diagramme à bulles et la vue 3D, qui montrent la même
+relation surface-prix enrichie de dimensions supplémentaires. Trois
+visualisations ont été ajoutées en cours de projet : le comparateur
+interactif de quartiers, le dendrogramme de segmentation et la carte
+géographique.
+
+```{r tab_catalogue}
+catalogue <- data.frame(
+  Acte = c(rep("Acte 1 · Marché", 5), rep("Acte 2 · Géographie", 7),
+           rep("Acte 3 · Environnement", 4), rep("Acte 4 · Facteurs", 6),
+           rep("Acte 5 · Temporel", 3)),
+  Visualisation = c(
+    "Histogramme du prix de vente", "Courbes de densité par type de bien",
+    "Anneau — composition du marché", "Sucettes — prix par quartier",
+    "Violons — prix par qualité",
+    "Boîtes à moustaches par quartier", "Treemap — volume et prix",
+    "Barres empilées 100 % — typologie", "Radar — profils des segments",
+    "Radar — comparateur de quartiers (+)", "Dendrogramme — segmentation (+)",
+    "Carte géographique des prix (+)",
+    "Barres — prix par condition", "Nuage de points coloré par condition",
+    "Rose de Nightingale — fréquences", "Gaufre — proportions",
+    "Matrice de corrélation", "Réseau de corrélations",
+    "Bulles — surface, prix, qualité", "Nuage 3D — surface, qualité, prix",
+    "Coordonnées parallèles — premium", "Importance des variables (RF)",
+    "Courbe — évolution 2006-2010", "Crêtes — prix par ère",
+    "Heatmap — saisonnalité des ventes"
+  ),
+  Package = c(
+    "plotly", "ggplot2", "plotly", "ggplot2", "ggplot2",
+    "highcharter", "highcharter", "plotly", "fmsb", "fmsb",
+    "stats + ggplot2", "leaflet",
+    "highcharter", "plotly", "ggplot2", "ggplot2",
+    "corrplot", "visNetwork", "plotly", "plotly 3D", "GGally",
+    "randomForest + ggplot2",
+    "highcharter", "ggridges", "ggplot2"
+  ),
+  Question = c(
+    "Quelle est la distribution des prix ?",
+    "Le type de bien détermine-t-il le segment ?",
+    "Quelle est la composition du marché ?",
+    "Quels quartiers sont les plus chers ?",
+    "La qualité détermine-t-elle le prix ?",
+    "Quelle dispersion des prix par quartier ?",
+    "Quels quartiers dominent le marché ?",
+    "Quel quartier est le plus diversifié ?",
+    "Quel profil type par segment de marché ?",
+    "Comment deux quartiers se comparent-ils ?",
+    "Quels segments naturels de quartiers ?",
+    "Où se situent les prix dans la ville ?",
+    "L'environnement influence-t-il le prix ?",
+    "La condition modifie-t-elle surface/prix ?",
+    "Quelle rareté des espaces verts ?",
+    "Quelle proportion bénéficie d'un parc ?",
+    "Quelles variables sont liées au prix ?",
+    "Quels groupes de variables co-évoluent ?",
+    "Surface + qualité = prix premium ?",
+    "Les trois facteurs co-évoluent-ils ?",
+    "Quel profil pour les maisons chères ?",
+    "Quelles variables prédisent le mieux ?",
+    "La crise de 2008 a-t-elle changé les prix ?",
+    "Les maisons récentes valent-elles plus ?",
+    "Y a-t-il un meilleur moment pour vendre ?"
+  )
+)
+kable(catalogue, booktabs = TRUE, longtable = TRUE,
+      col.names = c("Acte", "Visualisation", "Package", "Question répondue")) %>%
+  kable_styling(latex_options = c("repeat_header"), font_size = 8) %>%
+  column_spec(1, width = "2.6cm") %>%
+  column_spec(2, width = "5.2cm") %>%
+  column_spec(3, width = "2.6cm") %>%
+  column_spec(4, width = "5.0cm") %>%
+  collapse_rows(columns = 1, valign = "top")
+```
+
+*Les visualisations marquées (+) sont des ajouts réalisés en cours de
+projet, absents du cahier des charges initial. S'y ajoutent les trois
+graphiques d'aperçu de la page d'accueil (prix par segment, composition
+du marché, volume mensuel) et les outils de la page Prédiction
+(comparaison des modèles, simulateur, biens comparables).*
