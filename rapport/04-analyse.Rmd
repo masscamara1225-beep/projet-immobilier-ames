@@ -167,7 +167,7 @@ corrplot(cm, method = "circle", type = "upper",
 
 *Figure — Matrice de corrélation des variables clés : qualité (r = 0,79), surface (r = 0,71) et garage (r = 0,64) dominent la relation au prix. Les cercles verts foncés hors diagonale révèlent l'interdépendance des facteurs entre eux.*
 
-L'analyse des maisons premium (plus de 300 000 $) révèle une loi stricte : toutes respectent simultanément une surface supérieure à 2 000 ft² et une qualité d'au moins 8/10. Surface et qualité sont deux verrous non substituables — un immense garage ne compensera jamais des finitions médiocres. Aucune maison premium de l'échantillon ne déroge à cette double exigence.
+hiérarchie nette" de mon message précédent (celui avec Stone Brook 1 419 ft²
 
 ```{r acte4_importance, fig.height=3.6, out.width="72%"}
 imp_df <- readRDS(here("data", "imp_df.rds"))

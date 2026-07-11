@@ -513,11 +513,11 @@ ui <- dashboardPage(
                                             type = "Nuage de points", role = "Surface habitable et prix selon la condition environnementale",
                                             output_ui = withSpinner(plotlyOutput("scatter_condition", height = 420), type = 6),
                                             revele = tagList(
-                                              tags$p("À surface habitable rigoureusement égale, les propriétés proches d'un parc se vendent systématiquement plus cher que celles situées près des axes routiers."),
-                                              tags$p("Cela démontre que l'avantage environnemental est une valeur ajoutée invisible qui s'ajoute aux critères physiques du bâtiment, elle ne les remplace pas."),
-                                              tags$p("L'environnement agit comme un coefficient multiplicateur sur le prix final, plutôt que comme un simple bonus fixe."),
-                                              tags$p("Une belle vue ou l'absence de vis-à-vis augmentent l'attractivité globale du bien, ce qui permet au vendeur de capter la partie haute du budget des acheteurs."),
-                                              tags$p("Deux maisons de taille identique peuvent donc afficher des prix très différents selon leur seul environnement immédiat.")
+                                              tags$p("Chaque point du graphique est une maison, placée selon sa surface (axe horizontal) et son prix (axe vertical), colorée selon son environnement (variable Condition1). Si l'environnement ne comptait pas, les couleurs seraient mélangées partout."),
+                                              tags$p("Or, à surface comparable, les points « parc » (en vert) se placent presque toujours au-dessus des points « routes » (en rouge) : le même espace se vend plus cher au calme — environ 106 $ le ft² près d'un parc, contre 96 $ près d'un axe routier."),
+                                              tags$p("Autrement dit, l'environnement ne change pas la maison : il change la valeur de chacun de ses pieds carrés. Plus la maison est grande, plus l'avantage du parc pèse lourd en dollars."),
+                                              tags$p("C'est pourquoi deux maisons de taille identique peuvent afficher des prix très différents : l'acheteur ne paie pas seulement des murs, il paie aussi ce qui les entoure."),
+                                              tags$p("La leçon pour un acheteur est simple : comparer des prix sans comparer les environnements n'a pas de sens.")
                                             )
                                    )),
                           
@@ -601,11 +601,11 @@ ui <- dashboardPage(
                                             type = "Coordonnées parallèles", role = "Profils des maisons premium",
                                             output_ui = withSpinner(plotOutput("parcoord_premium", height = 450), type = 6),
                                             revele = tagList(
-                                              tags$p("Les propriétés de prestige, vendues à plus de 300 000 dollars, respectent toutes une contrainte stricte : une surface supérieure à 2 000 pieds carrés et une qualité globale d'au moins 8."),
-                                              tags$p("C'est la loi du critère non substituable : pour entrer dans le segment d'élite, un bien ne peut pas tricher sur ces deux points."),
-                                              tags$p("Un immense garage ou un sous-sol totalement aménagé ne pourront jamais compenser le manque d'espace de vie principal ou des finitions médiocres."),
-                                              tags$p("Surface et qualité agissent comme deux verrous obligatoires, tous deux nécessaires pour justifier un prix élevé auprès d'une clientèle aisée."),
-                                              tags$p("Aucune maison premium de l'échantillon ne descend sous ces deux seuils en même temps, ce qui confirme la rigueur de cette double exigence.")
+                                              tags$p("Les maisons premium (plus de 300 000 $) révèlent une hiérarchie nette entre les critères : la qualité globale (OverallQual) est le verrou non négociable — aucune ne descend sous 7/10, et neuf sur dix affichent au moins 8/10."),
+                                              tags$p("La surface, elle, se négocie : un tiers des maisons premium fait moins de 2 000 ft². À Stone Brook, une maison de 1 419 ft² s'est vendue 392 000 $, portée par sa seule qualité."),
+                                              tags$p("Un immense garage ou un sous-sol aménagé ne suffisent jamais à compenser des finitions médiocres ; une qualité exceptionnelle, en revanche, compense une surface contenue."),
+                                              tags$p("Cela se lit sur le graphique : toutes les lignes passent haut sur l'axe qualité, alors qu'elles s'étalent largement sur l'axe surface."),
+                                              tags$p("Pour viser le segment premium, la montée en gamme prime donc sur l'agrandissement.")
                                             )
                                    ),
                                    viz_card(titre = "Un seul facteur domine le pouvoir prédictif",
@@ -901,7 +901,8 @@ server <- function(input, output, session) {
                                   qual_min=min(qualite), qual_max=max(qualite), gar_min=min(garage), gar_max=max(garage),
                                   rec_min=min(recence), rec_max=max(recence))
     deux <- train %>% filter(Neighborhood %in% c(input$quartier_a, input$quartier_b)) %>% group_by(Neighborhood) %>%
-      summarise(prix=median(SalePrice), surface=median(GrLivArea), qualite=median(as.numeric(OverallQual)), garage=median(GarageCars), recence=median(YearBuilt))
+      summarise(prix=median(SalePrice), surface=median(GrLivArea), qualite=median(as.numeric(OverallQual)), garage=median(GarageCars), recence=median(YearBuilt)) %>%
+      arrange(match(Neighborhood, c(input$quartier_a, input$quartier_b)))
     rv <- deux %>% mutate(
       prix=(prix-bornes$prix_min)/(bornes$prix_max-bornes$prix_min), surface=(surface-bornes$surf_min)/(bornes$surf_max-bornes$surf_min),
       qualite=(qualite-bornes$qual_min)/(bornes$qual_max-bornes$qual_min), garage=(garage-bornes$gar_min)/(bornes$gar_max-bornes$gar_min),
@@ -916,13 +917,18 @@ server <- function(input, output, session) {
     req(input$quartier_a, input$quartier_b)
     da <- train %>% filter(Neighborhood == input$quartier_a) %>% summarise(p=median(SalePrice)) %>% pull(p)
     db <- train %>% filter(Neighborhood == input$quartier_b) %>% summarise(p=median(SalePrice)) %>% pull(p)
-    na_ <- noms_quartiers[[input$quartier_a]]; nb_ <- noms_quartiers[[input$quartier_b]]
     sa <- train %>% filter(Neighborhood == input$quartier_a) %>% summarise(s=median(GrLivArea)) %>% pull(s)
     sb <- train %>% filter(Neighborhood == input$quartier_b) %>% summarise(s=median(GrLivArea)) %>% pull(s)
+    na_ <- noms_quartiers[[input$quartier_a]]; nb_ <- noms_quartiers[[input$quartier_b]]
+    fr <- function(x) paste0(format(round(x), big.mark = " "), " $")
     plus_cher <- if (da > db) na_ else nb_
     plus_grand <- if (sa > sb) na_ else nb_
-    paste0(na_, " affiche un prix médian de ", scales::dollar(da), " contre ", scales::dollar(db), " pour ", nb_, ". ",
-           plus_cher, " est le plus cher des deux, mais ", plus_grand, " est aussi le plus grand en surface habitable médiane. Si le quartier le plus cher n'est pas aussi le plus grand, son prix s'explique surtout par la qualité, le garage ou la localisation.")
+    intro <- paste0(na_, " affiche un prix médian de ", fr(da), " contre ", fr(db), " pour ", nb_, ". ")
+    if (plus_cher == plus_grand) {
+      paste0(intro, plus_cher, " domine à la fois par le prix et par la surface : la taille explique une partie de l'écart, mais le radar montre que la qualité et la récence font le reste.")
+    } else {
+      paste0(intro, plus_cher, " est le plus cher sans être le plus grand : son prix s'explique surtout par la qualité, le garage ou la localisation, visibles sur les autres axes.")
+    }
   })
   
   output$dendrogramme_quartiers <- renderPlot({
